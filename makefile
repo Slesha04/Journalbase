@@ -1,5 +1,5 @@
 src = $(wildcard *.c)
 obj = $(src:.c=.o)
 
-journalbase: $(obj)
+journalbase.out: $(obj)
 	$(CC) -o $@ $^
