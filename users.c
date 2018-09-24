@@ -24,7 +24,7 @@ usr_priv_t usr_login(char* username, char* password)
 
 int usr_add(char* username, char* password, usr_priv_t privilege)
 {
-    int temp;
+    int userid;
 
     usr_user_t* newuser = (usr_user_t*)malloc(sizeof(usr_user_t));
 
@@ -37,9 +37,9 @@ int usr_add(char* username, char* password, usr_priv_t privilege)
 
     newuser->password_hash = hashpassword(password);
 
-    sscanf(username, "%d", &temp);
+    sscanf(username, "%d", &userid);
 
-    newuser->user_id = temp;
+    newuser->user_id = userid;
     newuser->privilege = privilege;
 }
 

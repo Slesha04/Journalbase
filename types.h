@@ -35,7 +35,7 @@ typedef struct usr_user
     
 	int user_id;
 	int password_hash;
-    priv_t privilege;
+    usr_priv_t privilege;
 } usr_user_t;
 
 /******************************************************************************

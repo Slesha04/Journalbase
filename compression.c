@@ -1,4 +1,5 @@
-#include "types.h"
+#include <stdio.h>
+#include "compression.h"
 
 /*******************************************************************************
  * This function decompresses a file loaded into memory

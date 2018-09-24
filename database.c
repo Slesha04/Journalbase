@@ -1,4 +1,5 @@
-#include "types.h"
+#include <stdio.h>
+#include "database.h"
 
 int dat_add(dat_file_t* file)
 {

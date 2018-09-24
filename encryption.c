@@ -1,4 +1,5 @@
-#include "types.h"
+#include <stdio.h>
+#include "encryption.h"
 
 /*******************************************************************************
  * This function decrypts a file loaded into memory
