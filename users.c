@@ -1,6 +1,7 @@
 #include "types.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 int hashkey[6] = { 0x1C0DE, 0x2DEAD, 0x3C0DE, 0x4ADDD, 0x5BEEF };
 /* by miles */
@@ -24,7 +25,7 @@ usr_priv_t usr_login(char* username, char* password)
 
 int usr_add(char* username, char* password, usr_priv_t privilege)
 {
-    int userid;
+    /*int userid;
 
     usr_user_t* newuser = (usr_user_t*)malloc(sizeof(usr_user_t));
 
@@ -40,7 +41,7 @@ int usr_add(char* username, char* password, usr_priv_t privilege)
     sscanf(username, "%d", &userid);
 
     newuser->user_id = userid;
-    newuser->privilege = privilege;
+    newuser->privilege = privilege;*/
 }
 
 int usr_remove(char* username)
