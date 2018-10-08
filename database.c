@@ -17,7 +17,7 @@ int dat_add(const char* filename)
 
 int dat_searchtitle(char* search_term)
 {
-
+    
 }
 
 int dat_searchauthor(char* search_term)

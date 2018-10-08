@@ -154,6 +154,8 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
     printf("DEBUG: com_buildtree: Computing static huffman tree.... :)\n");
     #endif
 
+    /* Static frequency data for huffman tree generation. \? is used to 
+       represent the start of plain data (not coded.) */
     int com_table_freqs[COM_TABLE_SIZE] = { 2000, 700, 600, 550, 500, 480, 
     450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
     81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31 };
