@@ -374,6 +374,11 @@ com_huffnode_t* com_getnode(char character, com_huffnode_t** tree)
         return 0;
     }
 
+    char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
+    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
+    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
+    'S', 'N', '(', ')' };
+
     int i;
 
     for (i = 0; i < COM_TABLE_SIZE; i++)
