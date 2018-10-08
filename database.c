@@ -1,9 +1,18 @@
 #include <stdio.h>
 #include "database.h"
+#include "compression.h"
+#include "encryption.h"
 
-int dat_add(dat_file_t* file)
+int dat_add(const char* filename)
 {
+    /*fopen(filename);
+    file->data = malloc(filelength);
+    fread(file->data, filelength);
 
+    com_compressfile(file);
+    enc_encryptfile(file);
+
+    fwrite(storedname);*/
 }
 
 int dat_searchtitle(char* search_term)

@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int dat_add(dat_file_t* file);
+int dat_add(const char* filename);
 
 int dat_searchtitle(char* search_term);
 
