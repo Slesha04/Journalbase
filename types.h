@@ -7,10 +7,14 @@
 #define FALSE 0
 #define TRUE 1
 
+
+
 #define MAX_TITLE_LENGTH 256
-#define MAX_AUTHORS_LENGTH 256
-#define MAX_KEYWORD_LENGTH 32
-#define MAX_KEYWORDS 16
+#define MAX_KEYWORD_LENGTH 256
+#define MAX_AUTHOR_NAME 256
+#define MAX_NUMBER_KEYWORDS 5
+#define MAX_NUMBER_AUTHORS 10
+#define MAX_LENGTH_ALIAS 25
 #define FILENAME_LENGTH 8
 
 /******************************************************************************
@@ -47,9 +51,9 @@ typedef struct usr_user
 /* defines a date */
 typedef struct dat_date
 {
-    char day;
-    char month;
-    short year;
+    int date;
+    int month;
+    int year;
 } dat_date_t;
 
 /* we can do this with fixed size char[]s in memory but when saving to disk
@@ -62,15 +66,20 @@ typedef struct dat_date
 /* defines a journal saved in the program's database */
 typedef struct dat_journal
 {
-    struct dat_journal* prev; /* null if first in list */
-    struct dat_journal* next; /* null if last in list */
+    struct dat_journal *prev;
+    struct dat_journal *next;
 
-	  char title[MAX_TITLE_LENGTH + 1]; /* null terminated */
-    char authors[MAX_AUTHORS_LENGTH + 1]; /* null terminated */
-    char keywords[MAX_KEYWORD_LENGTH + 1][MAX_KEYWORDS]; /* null terminated */
-    dat_date_t date;
-
+    char journaltitle[MAX_TITLE_LENGTH+1];
+    char authorname[MAX_AUTHOR_NAME+1][MAX_NUMBER_AUTHORS];
+    char journalkeywords[MAX_KEYWORD_LENGTH+1][MAX_NUMBER_KEYWORDS];
+    char authoralias[MAX_LENGTH_ALIAS];
+    int numberofkeywords;
+    int numberofauthors;
+    int referenceno;
+    /*char filename[MAX_TITLE_LENGTH+1];*/
+    dat_date_t dat_date_dt;
     char filename[FILENAME_LENGTH + 1]; /* null terminated */
+
 } dat_journal_t;
 
 /* defines a file loaded in memory, with a pointer to the data, length in 
