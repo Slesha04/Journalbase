@@ -3,6 +3,13 @@
 
 #include "types.h"
 
+/* Static frequency data for huffman tree generation. \? is used to represent
+   the start of plain data (not coded.) */
+
+/* table size cannot be more than heap size */
+#define COM_TABLE_SIZE 40
+#define COM_HEAP_SIZE 100
+
 /*******************************************************************************
  * This function decompresses a file loaded into memory
  * inputs: 
