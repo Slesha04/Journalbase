@@ -65,7 +65,7 @@ typedef struct dat_journal
     struct dat_journal* prev; /* null if first in list */
     struct dat_journal* next; /* null if last in list */
 
-	char title[MAX_TITLE_LENGTH + 1]; /* null terminated */
+	  char title[MAX_TITLE_LENGTH + 1]; /* null terminated */
     char authors[MAX_AUTHORS_LENGTH + 1]; /* null terminated */
     char keywords[MAX_KEYWORD_LENGTH + 1][MAX_KEYWORDS]; /* null terminated */
     dat_date_t date;
