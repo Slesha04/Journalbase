@@ -3,16 +3,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-int hashkey[6] = { 0x1C0DE, 0x2DEAD, 0x3C0DE, 0x4ADDD, 0x5BEEF };
 /* by miles */
 int hashpassword(char* password)
 {
     int hash = 0xDEADBEEF;
+    int key[6] = { 0x1C0DE, 0x2DEAD, 0x3C0DE, 0x4ADDD, 0x5BEEF };
     size_t s, len = strlen(password);
 
     for (s = 0; s < len; s++)
     {
-        hash ^= (password[s] * hashkey[s % 6] * 0xC);
+        hash ^= (password[s] * key[s % 6] * 0xC);
     }
 
     return hash;

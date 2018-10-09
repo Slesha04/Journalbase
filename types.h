@@ -83,4 +83,31 @@ typedef struct dat_file
 	char encrypted;
 } dat_file_t;
 
+/******************************************************************************
+ * COMPRESSION STRUCTS
+ *****************************************************************************/
+
+/* defines a node in the huffman tree */
+typedef struct com_huffnode
+{
+    struct com_huffnode* left;
+    struct com_huffnode* right;
+    struct com_huffnode* up;
+
+    char updir;
+
+    char character;
+    int frequency;
+
+    unsigned char enc_character;
+    char enc_length; /* length in bits */
+} com_huffnode_t;
+
+typedef struct com_bitstream
+{
+    unsigned char* buffer;
+    int byte; /* current byte offset */
+    int bit; /* current bit offset */
+} com_bitstream_t;
+
 #endif

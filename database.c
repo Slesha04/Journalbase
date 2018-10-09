@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "database.h"
+#include "compression.h"
+#include "encryption.h"
 
 /*******************************************************************************
  * This function will print database options
@@ -10,7 +12,11 @@
  * Author: Riza Tolentino
 *******************************************************************************/
 void init_dat(void)
+int dat_add(const char* filename)
 {
+    /*fopen(filename);
+    file->data = malloc(filelength);
+    fread(file->data, filelength);
 
 	dat_journal_t *j;
  
@@ -29,6 +35,10 @@ void init_dat(void)
 
 	head->next = NULL;	
 
+    com_compressfile(file);
+    enc_encryptfile(file);
+
+    fwrite(storedname);*/
 }
 
 /*******************************************************************************
@@ -47,6 +57,7 @@ int dat_add(const char* filename)
     com_compressfile(file);
     enc_encryptfile(file);
     fwrite(storedname);*/
+    
 
 }
 
