@@ -7,7 +7,7 @@
 #define FALSE 0
 #define TRUE 1
 
-
+#define BITS_IN_BYTE 8
 
 #define MAX_TITLE_LENGTH 256
 #define MAX_KEYWORD_LENGTH 256
@@ -108,8 +108,8 @@ typedef struct com_huffnode
     char character;
     int frequency;
 
-    unsigned char enc_character;
-    char enc_length; /* length in bits */
+    char enc_bits[BITS_IN_BYTE + 1];
+    int enc_length; /* length in bits */
 } com_huffnode_t;
 
 typedef struct com_bitstream
