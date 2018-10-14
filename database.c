@@ -5,10 +5,10 @@
 #include "compression.h"
 #include "encryption.h"
 
-int main(void)
+/*int main(void)
 {
 	return 0;
-}
+}*/
 
 /*******************************************************************************
  * This function will print database options

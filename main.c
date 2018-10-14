@@ -5,17 +5,45 @@
 
 int main(void)
 {
+    FILE* f = fopen("comp_test.txt", "r");
+
     dat_file_t testfile;
+
+    fseek (f, 0 , SEEK_END);
+    testfile.length = ftell(f);
+    rewind(f);
+    
     testfile.compressed = 0;
     testfile.encrypted = 0;
-    testfile.data = calloc(sizeof(char), 128);
+    testfile.data = calloc(sizeof(char), testfile.length);
 
-    strcpy(testfile.data, 
-        "Test data to compress, hopefully it will reduce the size in memory.");
-    
+    fread(testfile.data, sizeof(char), testfile.length, f);
+
+    printf("Read %d bytes", testfile.length);
+
     testfile.length = strlen(testfile.data);
 
+    printf(", strlen gives us %d length.\n", testfile.length);
+
+    fclose(f);
+
     com_compressfile(&testfile);
+
+    f = fopen("compressed.txt", "w+");
+    fwrite(testfile.data, sizeof(char), testfile.length, f);
+    fclose(f);
+
+    com_decompressfile(&testfile);
+
+    f = fopen("decompressed.txt", "w+");
+    fwrite(testfile.data, sizeof(char), testfile.length, f);
+    fclose(f);
+
+
+    free(testfile.data);
+
+    /*printf("Data has been compressed and decompressed: %s\n", 
+        (char*)testfile.data);*/
 
     return 0;
 }
