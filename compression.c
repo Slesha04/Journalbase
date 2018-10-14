@@ -583,7 +583,7 @@ int com_decompressfile(dat_file_t* file)
     }
 
     /* local variables for compression algorithm */
-    char bit, nlen = 0, noncode = '\?';
+    char c, bit, nlen = 0, noncode = '\?';
     com_huffnode_t * node = 0, * topnode;
     com_bitstream_t bitreader;
     int i;
@@ -654,12 +654,25 @@ int com_decompressfile(dat_file_t* file)
                         buf_pos++;
                     }
                 }
-                else
+                else if (nlen > 0)
                 {
-                    /* otherwise, copy nlen chars */
+                    /* copy nlen chars */
                     for (i = 0; i < nlen; i++)
                     {
                         buffer[buf_pos] = com_bitstream_readchar(&bitreader);
+
+                        buf_pos++;
+                    }
+                }
+                else
+                {
+                    /* nlen < 0: run-length encoding */
+                    c = com_bitstream_readchar(&bitreader);
+
+                    /* write the char to output -nlen times */
+                    for (i = 0; i < -nlen; i++)
+                    {
+                        buffer[buf_pos] = c;
 
                         buf_pos++;
                     }
@@ -758,16 +771,8 @@ int com_compressfile(dat_file_t* file)
     /* Initialise bitwriter */
     com_bitstream_init(&bitwriter, filebuffer);
 
-    #ifdef _DEBUG
-    /*printf("DEBUG: Testing compression on data \'%s\'\n", (char*)file->data);
-    printf("\nCompressed data:\n");*/
-    #endif
-
     /* loop through all chars and perform compression */
     i = 0;
-
-    printf("buffer: %s\n", buffer);
-    printf("length: %d\n", file->length);
 
     while (i < file->length)
     {
@@ -795,35 +800,63 @@ int com_compressfile(dat_file_t* file)
             com_bitstream_skip(&bitwriter);
 
             /* next determine length of uncompressed data (nlen) */
-            nlen = 1;
 
-            while (1)
+            /* check for a run of matching characters */
+            if (buffer[i] == buffer[i+1] && buffer[i] == buffer[i+2])
             {
-                c = buffer[i + nlen];
+                nlen = 3;
 
-                if ((i + nlen) == file->length)
+                if ((i + nlen) >= file->length)
                 {
-                    /* 0 nlen: raw data until EOF. */
                     nlen = 0;
+
                     break;
                 }
 
-                if (c == noncode || !com_getnode(c, tree))
+                /* see how many matches we have */
+                while (1)
                 {
+                    if (buffer[i + nlen] != buffer[i])
+                    {
+                        break;
+                    }
+
                     nlen++;
                 }
-                else
+
+                /* -nlen means run length encoding */
+                nlen = -nlen;
+            }
+            else
+            {
+                /* not run-length */
+                nlen = 1;
+
+                while (1)
                 {
-                    break;
+                    c = buffer[i + nlen];
+
+                    if ((i + nlen) >= file->length)
+                    {
+                        /* 0 nlen: raw data until EOF. */
+                        nlen = 0;
+
+                        break;
+                    }
+
+                    if (c == noncode || !com_getnode(c, tree))
+                    {
+                        nlen++;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 
             /* write nlen */
             com_bitstream_writechar(&bitwriter, nlen);
-
-            #ifdef _DEBUG
-            printf("Adding raw data length %d\n", (int)nlen);
-            #endif
 
             /* if 0 nlen write everything else we got */
             if (nlen == 0)
@@ -843,6 +876,13 @@ int com_compressfile(dat_file_t* file)
                     i++;
                 }
             }
+            else /* nlen < 0 */
+            {
+                /* write our one char, then move forward by however many we
+                   encoded */
+                com_bitstream_writechar(&bitwriter, buffer[i]);
+                i += -nlen;
+            }
         }
         /* Not special char: simply write compressed data */
         else
@@ -856,22 +896,7 @@ int com_compressfile(dat_file_t* file)
     com_bitstream_skip(&bitwriter);
 
     #ifdef _DEBUG
-    /* Read compressed data and output as binary (debug) */
-    com_bitstream_t bitreader;
-    bitreader.buffer = bitwriter.buffer;
-    bitreader.byte = 0;
-    bitreader.bit = 0;
     double comp_ratio = 0.0;
-
-    for (i = 0; i < (bitwriter.byte * 8); i++)
-    {
-        printf("%d", (int)com_bitstream_readbit(&bitreader));
-
-        if ((i % 8) == 7)
-        {
-            printf(" ");
-        }
-    }
 
     /* Write compression ratio */
     printf("\nOriginal: %d bytes. Compressed: %d bytes (padded to 8 bits).\n", 

@@ -7,6 +7,12 @@ int main(void)
 {
     FILE* f = fopen("comp_test.txt", "r");
 
+    if (!f)
+    {
+        printf("Couldn't open comp_test.txt\n");
+        return 1;
+    }
+
     dat_file_t testfile;
 
     fseek (f, 0 , SEEK_END);
@@ -19,11 +25,7 @@ int main(void)
 
     fread(testfile.data, sizeof(char), testfile.length, f);
 
-    printf("Read %d bytes", testfile.length);
-
-    testfile.length = strlen(testfile.data);
-
-    printf(", strlen gives us %d length.\n", testfile.length);
+    printf("Read %d bytes\n", testfile.length);
 
     fclose(f);
 
