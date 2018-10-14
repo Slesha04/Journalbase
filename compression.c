@@ -3,10 +3,9 @@
 #include <string.h>
 #include "compression.h"
 
-#ifdef _DEBUG
 /*******************************************************************************
  * strrev
- * This function reverses a string. Used for debug output of Huffman codes.
+ * This function reverses a string.
  * inputs: 
  *  str: string to reverse (read/write)
  * outputs:
@@ -32,13 +31,88 @@ void strrev(char *str)
 
     free(rev);
 }
-#endif
+
+/*******************************************************************************
+ * com_bitstream_init
+ * This function initialises a bit stream
+ * inputs: 
+ *  stream: pointer to com_bitstream_t structure describing data stream
+ *  (read/write)
+ *  data: pointer to data for the stream to read from/write to.
+ * outputs:
+ *  none
+ * Author: Miles Burchell
+*******************************************************************************/
+void com_bitstream_init(com_bitstream_t* stream, const void* data)
+{
+    stream->bit = 0;
+    stream->byte = 0;
+    stream->buffer = (char*)data;
+}
+
+/*******************************************************************************
+ * com_bitstream_rewind
+ * This function rewinds a bit stream by one bit.
+ * inputs: 
+ *  stream: pointer to com_bitstream_t structure describing data stream
+ *  (read/write)
+ * outputs:
+ *  none
+ * Author: Miles Burchell
+*******************************************************************************/
+void com_bitstream_rewind(com_bitstream_t* stream)
+{
+    if (!stream)
+    {
+        return;
+    }
+
+    if (!stream->bit)
+    {
+        stream->bit = BITS_IN_BYTE - 1;
+        stream->byte--;
+        return;
+    }
+
+    stream->bit--;
+}
+
+/*******************************************************************************
+ * com_bitstream_skip
+ * This function skips a bit stream to the start of the next byte.
+ * inputs: 
+ *  stream: pointer to com_bitstream_t structure describing data stream
+ *  (read/write)
+ * outputs:
+ *  returns number of bits skipped (or -1 if failed).
+ * Author: Miles Burchell
+*******************************************************************************/
+int com_bitstream_skip(com_bitstream_t* stream)
+{
+    if (!stream)
+    {
+        return -1;
+    }
+
+    if (!stream->bit)
+    {
+        return 0;
+    }
+
+    int n = 8 - stream->bit;
+
+    stream->byte++;
+    stream->bit = 0;
+
+    return n;
+}
 
 /*******************************************************************************
  * com_bitstream_writebit
  * This function writes an individual bit to a data stream
  * inputs: 
  *  stream: pointer to com_bitstream_t structure describing data stream
+ *  (read/write)
  *  bit: value to write (1 or 0)
  * outputs: 
  *  none
@@ -46,7 +120,7 @@ void strrev(char *str)
 *******************************************************************************/
 void com_bitstream_writebit(com_bitstream_t* stream, char bit)
 {
-    unsigned char mask;
+    unsigned char shift;
 
     if (!stream)
     {
@@ -64,14 +138,16 @@ void com_bitstream_writebit(com_bitstream_t* stream, char bit)
         stream->bit = 0;
     }
 
-    mask = (128 >> stream->bit);
+    shift = BITS_IN_BYTE - stream->bit - 1;
 
-    if (!bit)
+    if (bit)
     {
-        mask = ~ mask;
+        stream->buffer[stream->byte] |= (1 << shift);
     }
-
-    stream->buffer[stream->byte] |= mask;
+    else
+    {
+        stream->buffer[stream->byte] &= ~(1 << shift);
+    }
 
     stream->bit++;
 }
@@ -111,32 +187,92 @@ char com_bitstream_readbit(com_bitstream_t* stream)
 }
 
 /*******************************************************************************
- * com_bitstream_read
- * This function reads a series of bits from a data stream
+ * com_bitstream_writechar
+ * This function writes an entire char to the data stream
  * inputs: 
- *  stream: pointer to com_bitstream_t structure describing data stream
- *  buffer: char array to write output to (1 or 0 as char) (write)
- *  length: number of bits to read
- * outputs:
- *  writes to buffer
- *  returns 0 if the function succeeds, 1 if it fails
+ *  stream: pointer to com_bitstream_t structure describing data stream 
+ *  (read/write)
+ * outputs: 
+ *  none
  * Author: Miles Burchell
 *******************************************************************************/
-int com_bitstream_read(com_bitstream_t* stream, char* buffer, size_t length)
+void com_bitstream_writechar(com_bitstream_t* stream, char data)
 {
-    size_t s;
-
-    if (!buffer || !length || !stream)
+    if (!stream)
     {
-        return 1;
+        return;
     }
 
-    for (s = 0; s < length; s++)
+    if (stream->bit)
     {
-        buffer[s] = com_bitstream_readbit(stream);
+        printf("Error: com_bitstream_writechar: Not a whole byte.\n");
+        return;
     }
 
-    return 0;
+    com_bitstream_skip(stream);
+
+    stream->buffer[stream->byte] = data;
+    stream->byte++;
+}
+
+/*******************************************************************************
+ * com_bitstream_readchar
+ * This function reads an entire char from a data stream
+ * inputs: 
+ *  stream: pointer to com_bitstream_t structure describing data stream 
+ *  (read/write)
+ * outputs: 
+ *  returns the value of the char read, or 0 if the function fails (read data
+ *  can also be 0!)
+ * Author: Miles Burchell
+*******************************************************************************/
+char com_bitstream_readchar(com_bitstream_t* stream)
+{
+    if (!stream)
+    {
+        return 0;
+    }
+
+    if (stream->bit)
+    {
+        printf("Error: com_bitstream_readchar: Not a whole byte.\n");
+        return 0;
+    }
+
+    char c = stream->buffer[stream->byte];
+
+    stream->byte++;
+
+    return c;
+}
+
+/*******************************************************************************
+ * com_bitstream_writecom
+ * This function writes a series of bits representing a huffman coded character
+ * to a data stream.
+ * inputs: 
+ *  stream: pointer to com_bitstream_t structure describing data stream
+ *  (read/write)
+ *  node: huffman node representing character to write
+ * outputs:
+ *  returns number of bits written, or 0 if failed.
+ * Author: Miles Burchell
+*******************************************************************************/
+int com_bitstream_writehuff(com_bitstream_t* stream, com_huffnode_t* node)
+{
+    if (!stream || !node)
+    {
+        return 0;
+    }
+
+    int i;
+
+    for (i = 0; i < node->enc_length; i++)
+    {
+        com_bitstream_writebit(stream, node->enc_bits[i]);
+    }
+
+    return node->enc_length;
 }
 
 /*******************************************************************************
@@ -151,7 +287,7 @@ int com_bitstream_read(com_bitstream_t* stream, char* buffer, size_t length)
 int com_buildtree(com_huffnode_t*** tree_p_out)
 {
     #ifdef _DEBUG
-    printf("DEBUG: com_buildtree: Computing static huffman tree.... :)\n");
+    printf("DEBUG: com_buildtree: Computing static huffman tree....\n");
     #endif
 
     /* Static frequency data for huffman tree generation. \? is used to represent
@@ -160,11 +296,11 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
     const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
     'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
     'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
-    'S', 'N', '(', ')' };
+    '\n', '\r', 'S', 'N', 'z' };
 
     const int com_table_freqs[COM_TABLE_SIZE] = { 2000, 700, 600, 550, 500, 480, 
     450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
-    81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31 };
+    81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31, 30};
 
     char buffer[32], c;
     int bits, i, j, heapsize = 0;
@@ -264,7 +400,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         #endif
 
         heap[heapsize] = (com_huffnode_t*)calloc(1, sizeof(com_huffnode_t));
-        heap[heapsize]->character = '\"'; /* represents a non-coding node */
+        heap[heapsize]->character = '\0';
         heap[heapsize]->left = secondlowest;
         heap[heapsize]->right = lowest;
         heap[heapsize]->frequency = lowest->frequency + secondlowest->frequency;
@@ -325,15 +461,6 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
 
         #ifdef _DEBUG
         printf("Character %c code %s\n", c, buffer);
-
-        /*printf("enc data ");
-
-        for (j = 0; j < node->enc_length; j++)
-        {
-            printf("%d", node->enc_bits[j]);
-        }
-
-        printf("\n");*/
         #endif
     }
 
@@ -342,9 +469,9 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
        remember, 1 is right 0 is left */
     node = heap[heapsize - 1];
 
-    printf("Traversal test: 110111 is character %c\n", 
-        node->right->right->left->right->right->right->character);
-    /*        1      1      0     1      1      1        */
+    printf("Traversal test: 11010 is character %c\n", 
+        node->right->right->left->right->left->character);
+    /*        1      1      0     1      0       */
     #endif
 
     /* attempt to resize heap pointer block to reduce memory usage */
@@ -404,7 +531,7 @@ com_huffnode_t* com_getnode(char character, com_huffnode_t** tree)
     const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
     'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
     'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
-    'S', 'N', '(', ')' };
+    '\n', '\r', 'S', 'N', 'z' };
 
     int i;
 
@@ -432,14 +559,14 @@ int com_decompressfile(dat_file_t* file)
 {
     if (!file->compressed)
     {
-        printf("Error: Trying to decompress a non-compressed file.\n");
+        printf("Error: com_decompressfile: Non-compressed file.\n");
 
         return 1;
     }
 
     if (file->encrypted)
     {
-        printf("Error: Trying to decompress an encrypted file.\n");
+        printf("Error: com_decompressfile: Encrypted file.\n");
 
         return 1;
     }
@@ -455,7 +582,137 @@ int com_decompressfile(dat_file_t* file)
         return 1;
     }
 
-    /* */
+    /* local variables for compression algorithm */
+    char c, bit, nlen = 0, noncode = '\?';
+    com_huffnode_t * node = 0, * topnode;
+    com_bitstream_t bitreader;
+    int i;
+
+    char* buffer;
+    int buf_pos = 0;
+
+    /* Allocate memory buffer for decompressed data */
+    buffer = (char*)calloc(sizeof(char), (file->length * 2) + 512);
+
+    /* Initialise bitreader */
+    com_bitstream_init(&bitreader, file->data);
+
+    /* Last added node is the top of the tree. */
+    topnode = tree[treesize - 1];
+
+    /* Sanity check */
+    if (!topnode || !topnode->left || !topnode->right)
+    {
+        printf("Error: com_decompressfile: Invalid top node.\n");
+        return 1;
+    }
+
+    /* Start from the top */
+    node = topnode;
+
+    /* Start reading from the input buffer, bit by bit by bit */
+    while (bitreader.byte < file->length)
+    {
+        bit = com_bitstream_readbit(&bitreader);
+
+        /* Traverse tree */
+        if (bit)
+        {
+            node = node->right; /* right: 1 */
+        }
+        else
+        {
+            node = node->left;  /* left: 0  */
+        }
+
+        if (!node)
+        {
+            printf("Error: com_decompressfile: Null node pointer.\n");
+            printf("%s\n", buffer);
+            return 1;
+        }
+
+        if (node->character != '\0')
+        {
+            /* We've hit a character */
+            if (node->character == noncode)
+            {
+                /* 'noncoded incoming' escape char, proceed with processing
+                   noncoded data. First skip to end of byte. */
+                com_bitstream_skip(&bitreader);
+
+                /* read nlen (represents number of non-coded chars) */
+                nlen = com_bitstream_readchar(&bitreader);
+
+                /* nlen = 0: raw data until EOF. */
+                if (nlen == 0)
+                {
+                    for (i = 0; i < (file->length - bitreader.byte); i++)
+                    {
+                        buffer[buf_pos] = com_bitstream_readchar(&bitreader);
+
+                        buf_pos++;
+                    }
+                }
+                else if (nlen > 0)
+                {
+                    /* copy nlen chars */
+                    for (i = 0; i < nlen; i++)
+                    {
+                        buffer[buf_pos] = com_bitstream_readchar(&bitreader);
+
+                        buf_pos++;
+                    }
+                }
+                else
+                {
+                    /* nlen < 0: run-length encoding */
+                    c = com_bitstream_readchar(&bitreader);
+
+                    /* write the char to output -nlen times */
+                    for (i = 0; i < -nlen; i++)
+                    {
+                        buffer[buf_pos] = c;
+
+                        buf_pos++;
+                    }
+                }
+
+                node = topnode;
+            }
+            else
+            {
+                /* Standard character. Output char. */
+                buffer[buf_pos] = node->character;
+
+                buf_pos++;
+
+                node = topnode;
+            }
+        }
+    }
+
+    /* free original data buffer */
+    free(file->data);
+
+    /* null terminate our output */
+    buffer[buf_pos] = '\0';
+
+    /* attempt realloc our buffer to a sensible size */
+    void* realloc_buffer = realloc(buffer, buf_pos + 1);
+
+    if (realloc_buffer)
+    {
+        file->data = realloc_buffer;
+    }
+    else
+    {
+        file->data = buffer;
+    }
+
+    /* set new file length, and decompressed attribute */
+    file->length = buf_pos - 1;
+    file->compressed = FALSE;
 
     /* dispose of the huffman tree */
     com_freetree(tree, treesize);
@@ -476,14 +733,14 @@ int com_compressfile(dat_file_t* file)
 {
     if (file->compressed)
     {
-        printf("Error: Trying to compress a compressed file.\n");
+        printf("Error: com_compressfile: Compressed file.\n");
 
         return 1;
     }
 
     if (file->encrypted)
     {
-        printf("Error: Trying to compress an encrypted file.\n");
+        printf("Error: com_compressfile: Encrypted file.\n");
 
         return 1;
     }
@@ -499,90 +756,175 @@ int com_compressfile(dat_file_t* file)
         return 1;
     }
 
-    char c, noncode = '\?';
-    int i, bit = 0, comlen = 0, origlen = 0;
+    /* local variables for comrpession algorithm */
+    char c, nlen = 0, noncode = '\?';
+    int i, j;
     com_huffnode_t* node = 0;
-    com_bitstream_t bitreader;
-    bitreader.buffer = file->data;
-    bitreader.byte = 0;
-    bitreader.bit = 0;
+    com_bitstream_t bitwriter;
+    void* filebuffer;
+    char* buffer = (char*)file->data;
 
-    #ifdef _DEBUG
-    char buffer[32];
+    /* Allocate memory buffer for compressed data (adds 512 bytes for breathing
+       room, we will realloc this later anyway) */
+    filebuffer = calloc(sizeof(char), file->length + 512);
 
-    printf("DEBUG: Testing compression on data \'%s\'\n", (char*)file->data);
+    /* Initialise bitwriter */
+    com_bitstream_init(&bitwriter, filebuffer);
 
-    printf("Original data (%d bytes:)\n", file->length);
+    /* loop through all chars and perform compression */
+    i = 0;
 
-    for (i = 0; i < (file->length * 8); i++)
+    while (i < file->length)
     {
-        printf("%d", (int)com_bitstream_readbit(&bitreader));
+        c = buffer[i];
 
-        if ((i % 8) == 7)
-        {
-            printf(" ");
-        }
-    }
+        node = com_getnode(c, tree);
 
-    printf("\nCompressed data:\n");
-    #endif
-
-    for (i = 0; i < file->length; i++)
-    {
-        origlen += 8;
-
-        c = ((char*)file->data)[i];
-
+        /* We can't let '/?' be treated as a normal character */
         if (c == noncode)
         {
             node = 0;
         }
-        else
-        {
-            node = com_getnode(c, tree);
-        }
 
+        /* noncoded character, use escape char ('/?') followed by nlen - char
+           specifying length of noncoded data to follow (positive number)
+           or number of times to repeat the following char (negative number) */
         if (!node)
         {
+            /* first write our escape char in Huff code */
             node = com_getnode(noncode, tree);
-            comlen += 16;
-            continue;
-        }
 
-        /* we're going in reverse */
-        while(node->up)
-        {
-            bit = comlen % 8;
+            com_bitstream_writehuff(&bitwriter, node);
 
-            sprintf(&buffer[bit], "%d", (int)node->updir);
-            
-            node = node->up;
+            /* next finish the current byte */
+            com_bitstream_skip(&bitwriter);
 
-            if (bit == 7)
+            /* next determine length of uncompressed data (nlen) */
+
+            /* check for a run of matching characters */
+            if (buffer[i] == buffer[i+1] && buffer[i] == buffer[i+2])
             {
-                strrev(buffer);
-                printf ("%s ", buffer);
+                nlen = 3;
 
-                memset(buffer, 0, 32);
+                if ((i + nlen) >= file->length)
+                {
+                    nlen = 0;
+
+                    break;
+                }
+
+                /* see how many matches we have */
+                while (1)
+                {
+                    if (buffer[i + nlen] != buffer[i])
+                    {
+                        break;
+                    }
+
+                    nlen++;
+                }
+
+                /* -nlen means run length encoding */
+                nlen = -nlen;
+            }
+            else
+            {
+                /* not run-length */
+                nlen = 1;
+
+                while (1)
+                {
+                    c = buffer[i + nlen];
+
+                    if ((i + nlen) >= file->length)
+                    {
+                        /* 0 nlen: raw data until EOF. */
+                        nlen = 0;
+
+                        break;
+                    }
+
+                    if (c == noncode || !com_getnode(c, tree))
+                    {
+                        nlen++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
 
-            comlen++;
+            /* write nlen */
+            com_bitstream_writechar(&bitwriter, nlen);
+
+            /* if 0 nlen write everything else we got */
+            if (nlen == 0)
+            {
+                for (j = 0; j < (file->length - bitwriter.byte); j++)
+                {
+                    com_bitstream_writechar(&bitwriter, buffer[i]);
+                    i++;
+                }
+            }
+            else if (nlen > 0)
+            {
+                /* write nlen bytes of  uncompressed data */
+                for (j = 0; j < nlen; j++)
+                {
+                    com_bitstream_writechar(&bitwriter, buffer[i]);
+                    i++;
+                }
+            }
+            else /* nlen < 0 */
+            {
+                /* write our one char, then move forward by however many we
+                   encoded */
+                com_bitstream_writechar(&bitwriter, buffer[i]);
+                i += -nlen;
+            }
+        }
+        /* Not special char: simply write compressed data */
+        else
+        {
+            com_bitstream_writehuff(&bitwriter, node);
+            i++;
         }
     }
 
-    #ifdef _DEBUG
-    int rem = 7 - bit;
+    /* Finish up the last byte if we haven't already */
+    com_bitstream_skip(&bitwriter);
 
-    for (i = 0; i < rem; i++)
+    #ifdef _DEBUG
+    double comp_ratio = 0.0;
+
+    /* Write compression ratio */
+    printf("\nOriginal: %d bytes. Compressed: %d bytes (padded to 8 bits).\n", 
+        file->length, bitwriter.byte);
+    
+    comp_ratio = (double)file->length / (double)bitwriter.byte;
+
+    printf("Compression ratio: %0.2lf:1\n", comp_ratio);
+    #endif
+
+    /* free original data buffer */
+    free(file->data);
+
+    /* attempt realloc our buffer to a sensible size */
+    void* realloc_buffer = realloc(filebuffer, bitwriter.byte + 1);
+
+    if (realloc_buffer)
     {
-        printf("0");
-        comlen++;
+        file->data = realloc_buffer;
+    }
+    else
+    {
+        file->data = filebuffer;
     }
 
-    printf("\nOriginal: %d bytes. Compressed: %d bytes (padded to 8 bits).\n", 
-        origlen / 8, comlen / 8);
-
-    #endif
+    /* set new file length, and compressed attribute */
+    file->length = bitwriter.byte;
+    file->compressed = TRUE;
 
     /* dispose of the huffman tree */
     com_freetree(tree, treesize);

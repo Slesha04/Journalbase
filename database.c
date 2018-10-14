@@ -6,6 +6,7 @@
 #include "encryption.h"
 
 
+
 /*******************************************************************************
  * This function will print database options
  * inputs: 

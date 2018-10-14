@@ -1,6 +1,11 @@
 # Prerequisites
 *.d
 
+# Data files the program uses
+*.txt
+*.zip
+*.txtz
+
 # Object files
 *.o
 *.ko
