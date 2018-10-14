@@ -10,9 +10,10 @@
 #define MAX_NUMBER_AUTHORS 10
 #define FALSE 0
 #define TRUE 1
-#define BUFFER_LENGTH 2
+#define BUFFER_LENGTH 25
 #define MAX_LENGTH_ALIAS 25
 #define DAT_JOURNAL_DB_NAME "journal_info_database"
+#define DB_FN "database_journal"
 
 /*void dat_init(void);*/
 
@@ -22,11 +23,11 @@ dat_journal_t *dat_journalentry(int no_journals);
 
 int dat_searchjournals(dat_journal_t *head, int no_journals);
 
-int dat_searchtitle(char* search_term, dat_journal_t *head);
+int dat_searchtitle(char search_term[], dat_journal_t *head);
 
-int dat_searchauthor(char* search_term, dat_journal_t *head);
+int dat_searchauthor(char search_term[], dat_journal_t *head);
 
-int dat_searchtags(char* search_term, dat_journal_t *head);
+int dat_searchtags(char search_term[], dat_journal_t *head);
 
 int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head);
 
@@ -51,5 +52,7 @@ int dat_check_menu_input(int menuinpu, int lowerbound, int higherbound);
 int dat_save_journal_data(dat_journal_t *head, int no_journals);
 
 int dat_load_journal_data(dat_journal_t *head);
+
+dat_date_t dat_scan_date(void);
 
 #endif
