@@ -5,6 +5,11 @@
 #include "compression.h"
 #include "encryption.h"
 
+int main(void)
+{
+	return 0;
+}
+
 /*******************************************************************************
  * This function will print database options
  * inputs: 
@@ -38,14 +43,45 @@
 
 int dat_add(const char* filename)
 {
-    /*fopen(filename);
-    file->data = malloc(filelength);
-    fread(file->data, filelength);
+	FILE* journalfiletext;
+	dat_file_t file;
+	long filesize;
+	size_t file_result;
+
+    journalfiletext = fopen(filename, "r");
+    if(journalfiletext==NULL)
+    {
+    	printf("Read error\n");
+   		return FALSE;
+    }
+
+    /*obtain file length*/
+    fseek(journalfiletext, 0, SEEK_END);
+    filesize = ftell(journalfiletext);
+    rewind(journalfiletext); /*returns pointer to start*/ 
+
+    /*allocate the memory for the file*/
+    file.data = (char*)malloc(sizeof(char)*filesize);
+    if(file.data==NULL)
+    {
+    	printf("Memory error\n");
+    	return FALSE;
+    }
+
+    file_result=fread(file.data,sizeof(char),filesize,journalfiletext);
+    if(file_result != filesize)
+    {
+    	printf("Read error\n");
+    }
+
+   /*the file is loadedin the memory.
     com_compressfile(file);
     enc_encryptfile(file);
+    fwrite(filename);*/
 
-    fwrite(storedname);*/
-    return 0;
+    
+    fclose(journalfiletext);
+    return TRUE;
 }
 
 /*******************************************************************************
@@ -62,6 +98,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 
 	dat_journal_t *j = NULL;
 	j = malloc(sizeof(dat_journal_t));
+    
 
 	int valid = TRUE, validcheck2 = TRUE, check;
 	int i = 0, m = 0, k=0, n=0, x=0;
@@ -74,6 +111,23 @@ dat_journal_t *dat_journalentry(int no_journals)
 		 }
 
 	printf("Enter the Journal information>\n");
+
+	do{
+		printf("Enter the File Name>\n");
+		scanf(" %[^\n]s", (*j).filename);
+
+		if(dat_add((*j).filename)==FALSE)
+		{
+			valid = FALSE;
+		}
+
+		else
+		{
+			valid = TRUE;
+		}	
+		
+		}while(valid==FALSE);
+
 	do{
 		printf("Enter the Journal Title>\n");
 		scanf(" %[^\n]s", (*j).journaltitle);
@@ -651,7 +705,7 @@ int dat_delete_Journal( dat_journal_t **head, int key, int no_journals)
 		temp = temp->next;
 	}
 
-	if(temp==NULL)
+	if(temp == NULL)
 	{
 		printf("There was an error removing this journal.");
 		return no_journals;
@@ -799,3 +853,82 @@ int dat_check_menu_input(int menuinput, int lowerbound, int higherbound)
     }
     return TRUE;
 }
+
+/*******************************************************************************
+ * This function checks the menu input from the user
+ * If the menu input is <lowest option or >highest option, it will inform the
+ * user of an "Invalid choice"
+ * inputs: 
+ * user input from the printed menu list
+ * outputs:
+ * integer -- TRUE(1)/FALSE (0) to indicate whether the program should continue
+*******************************************************************************/
+int dat_save_journal_data(dat_journal_t *head, int no_journals)
+{
+	FILE* journalinfo;
+	dat_journal_t * current = head->next;
+	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "w");
+
+
+	if(journalinfo)
+	{
+		fprintf(journalinfo, "%d\n", no_journals);
+		while(current != NULL)
+			{
+			
+				fprintf(journalinfo, "%-8.5d %-9.8s %-10.10s %02d %02d %04d \n", current->referenceno, 
+				current->journaltitle, current->authoralias,
+			 	current->dat_date_dt.date, current->dat_date_dt.month, 
+			 	current->dat_date_dt.year);
+
+		 		current = current->next;
+
+			}
+	}
+	else
+	{
+		printf("Error writing journal data.\n");
+	}
+	fclose(journalinfo);
+	return 0;
+}
+
+/*******************************************************************************
+ * This function checks the menu input from the user
+ * If the menu input is <lowest option or >highest option, it will inform the
+ * user of an "Invalid choice"
+ * inputs: 
+ * user input from the printed menu list
+ * outputs:
+ * integer -- TRUE(1)/FALSE (0) to indicate whether the program should continue
+*******************************************************************************/
+int dat_load_journal_data(dat_journal_t *head)
+{
+	FILE* journalinfo;
+	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "r");
+	int no_journals;
+	dat_journal_t * current = head->next;
+
+	if(journalinfo == NULL)
+	{
+		printf("Read error\n");
+		return 0;
+	}
+	if(journalinfo)
+	{
+		fscanf(journalinfo, "%d", &no_journals);
+		while(current != NULL)
+			{
+			
+				fscanf(journalinfo, "%d %s %s %02d %02d %04d \n", &current->referenceno, 
+				current->journaltitle, current->authoralias,
+			 	&current->dat_date_dt.date, &current->dat_date_dt.month, 
+			 	&current->dat_date_dt.year);
+
+		 		current = current->next;
+
+			}
+			fclose(journalinfo);
+	}
+	return no_journals;
+}  

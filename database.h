@@ -12,7 +12,7 @@
 #define TRUE 1
 #define BUFFER_LENGTH 2
 #define MAX_LENGTH_ALIAS 25
-
+#define DAT_JOURNAL_DB_NAME "journal_info_database"
 
 /*void dat_init(void);*/
 
@@ -47,5 +47,9 @@ int dat_checksearchdate(int date, int month, int year);
 int dat_checkword(char word[]);
 
 int dat_check_menu_input(int menuinpu, int lowerbound, int higherbound);
+
+int dat_save_journal_data(dat_journal_t *head, int no_journals);
+
+int dat_load_journal_data(dat_journal_t *head);
 
 #endif
