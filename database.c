@@ -207,14 +207,10 @@ int dat_open(const char* storename)
 *******************************************************************************/
 dat_journal_t *dat_journalentry(int no_journals)
 {
-<<<<<<< HEAD
-=======
-
 	#ifdef DEBUG
 	printf("DEBUG: dat_journalentry: adding journal no. %d.\n", no_journals);
 	#endif
 
->>>>>>> c4517af50580bb86b1424956a586403d57fb01f5
 	dat_journal_t *j = NULL;
 	j = malloc(sizeof(dat_journal_t));
     
@@ -367,11 +363,11 @@ dat_journal_t *dat_journalentry(int no_journals)
 			}
 
 			keyword_buffer = getchar();
-			keyword_list[MAX_KEYWORD_LENGTH+1];
+			/*char keyword_list[MAX_KEYWORD_LENGTH+1];*/
 			m++;
 			n++;
 
-			keyword_list[n-1]=keyword_buffer;
+			/*keyword_list[n-1]=keyword_buffer;*/
 			if(keyword_buffer != (32||44))
 			{
 				(*j).journalkeywords[m-1][i] = keyword_buffer;
@@ -385,7 +381,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 			}
 			if(keyword_buffer==10)
 			{
-				keyword_list[n-1] = 0;
+				/*keyword_list[n-1] = 0;*/
 			}
 			
 			temp = keyword_buffer;
@@ -405,9 +401,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 	printf("Your reference number is: %d\n", (*j).referenceno);
 
 	#ifdef DEBUG
-	printf("DEBUG: dat_journalentry: journal added with fields:\n
-			Title: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n Keywords: %s\n 
-			Reference Number: %d\n", (*j).journaltitle, (*j).authoralias, &(*j).dat_date_dt.date, 
+	printf("DEBUG: dat_journalentry: journal added with fields:\nTitle: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n Keywords: %s\n Reference Number: %d\n", (*j).journaltitle, (*j).authoralias, &(*j).dat_date_dt.date, 
 			&(*j).dat_date_dt.month, &(*j).dat_date_dt.year, keyword_list,(*j).referenceno);
 	#endif
 
