@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "compression.h"
 #include "encryption.h"
 #include "database.h"
 
 int main(void)
 {
-	printf("YEET\n");
+	printf("YEET...on the street\n");
 
  	/*database testing*/
     int dat_menu_selection=0; 
-    char choice_buffer[2];
+    char choice_buffer[25+1];
     int total_journal_count = 0, relative_count =0;
     dat_journal_t *j;
     dat_journal_t *head = NULL;
@@ -82,7 +83,7 @@ int main(void)
 		break;
 	}
 
-	}while(dat_menu_selection != 4);
+	}while(dat_menu_selection !=4);
 
     return 0;
 }

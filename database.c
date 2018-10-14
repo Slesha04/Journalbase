@@ -5,36 +5,6 @@
 #include "compression.h"
 #include "encryption.h"
 
-/*******************************************************************************
- * This function will print database options
- * inputs: 
- * -
- * outputs: 
- * printed menu
- * Author: Riza Tolentino
-*******************************************************************************/
-/*dat_journal_t *dat_init(void)
-{
-	just write this in main
-	dat_journal_t *j;
- 
-    dat_journal_t *head = NULL;
-    head = malloc(sizeof(dat_journal_t));
- 
-
-    if(head == NULL)
-    {
-	    	
-	   	printf("No memory allocated\n");	
-	}
-
-
-	dat_journal_t *current = head;
-
-	head->next = NULL;	
-	return j;
-}
-*/
 
 /*******************************************************************************
  * dat_add
@@ -225,22 +195,33 @@ int dat_open(const char* storename)
 }
 
 /*******************************************************************************
- * This function will print database options
+ * This function will prompt users to enter the file name of the journal they 
+ * would like to add and then prompt the user for filename, journal title, 
+ * author(s), date, keyword(s)
  * inputs: 
- * -
+ * number of inputs
  * outputs: 
- * printed menu
+ * pointer to a struct with the journal information fields:
+ * filename, journal title, author(s), date, keywords.
  * Author: Riza Tolentino
 *******************************************************************************/
 dat_journal_t *dat_journalentry(int no_journals)
 {
+<<<<<<< HEAD
+=======
+
+	#ifdef DEBUG
+	printf("DEBUG: dat_journalentry: adding journal no. %d.\n", no_journals);
+	#endif
+
+>>>>>>> c4517af50580bb86b1424956a586403d57fb01f5
 	dat_journal_t *j = NULL;
 	j = malloc(sizeof(dat_journal_t));
     
 
 	int valid = TRUE, validcheck2 = TRUE, check;
-	int i = 0, m = 0, k=0, n=0, x=0;
-	char keywords, temp, author_buffer;
+	int i = 0, m = 0, k=0, n=0, x=0; /*counters/flags*/
+	char keyword_buffer, temp, author_buffer;
 	char d_buffer[BUFFER_LENGTH], m_buffer[BUFFER_LENGTH], y_buffer[BUFFER_LENGTH];
 
     if(j == NULL){
@@ -277,13 +258,58 @@ dat_journal_t *dat_journalentry(int no_journals)
 
 	}while(dat_checkword((*j).journaltitle)==FALSE);
 
+
 	do{
+		printf("Enter the Author's Name, if multiple authors, separate by a comma and space>\n");
+		getchar();
+		do
+		{ 
+			if(author_buffer==10)
+			{
+				n = 0;
+				k = 0;
+			}
+
+			author_buffer = getchar();
+			k++;
+
+			if(author_buffer != (32||44))
+			{
+				(*j).authorname[k-1][n] = author_buffer;
+				if(n==0 && author_buffer!=10)
+				{
+					(*j).authoralias[k-1] = author_buffer;
+				}
+			}
+			if(author_buffer == 32 && (temp == 44||m==0))
+			{
+				(*j).authorname[k-1][n] = 0;
+				k=0;
+				x ++;
+				n++;
+			}
+			
+			temp = author_buffer;
+
+		}while(author_buffer != 10);
+
+		(*j).numberofauthors = n + 1;
+		if((*j).numberofauthors>1)
+		{
+			strcat((*j).authoralias, "et al.");
+		}
+
+		if(i>MAX_NUMBER_AUTHORS)
+		{
+			valid = FALSE;
+			printf("You have entered too many authors\n");
+		}
+
+	}while(valid!=TRUE);
+	
+		do{
 		/*if the input has been previously invalid but skipped the first warning, 
 		the user will now be warned*/
-		if(validcheck2==FALSE)
-		{
-			printf("Invalid date\n");
-		}
 
 		printf("Enter the Publication Date>\n");
 		
@@ -319,68 +345,12 @@ dat_journal_t *dat_journalentry(int no_journals)
 		valid = (dat_checksearchdate((*j).dat_date_dt.date, 
 			(*j).dat_date_dt.month, (*j).dat_date_dt.year));
 
-		if(valid==FALSE)
+		if(valid==FALSE||validcheck2==FALSE)
 		{
 			printf("Invalid date\n");
 		}
 
 	}while(valid == FALSE);
-
-	do{
-		printf("Enter the Author's Name, if multiple authors, separate by a comma and space>\n");
-		getchar();
-		do
-		{ 
-			if(author_buffer==10)
-			{
-				n = 0;
-				k = 0;
-			}
-
-			author_buffer = getchar();
-			k++;
-
-			if(author_buffer != (32||44))
-			{
-				(*j).authorname[k-1][n] = author_buffer;
-				if(n==0 && author_buffer!=10)
-				{
-					(*j).authoralias[k-1] = author_buffer;
-				}
-			}
-			if(author_buffer == 32 && (temp == 44||m==0))
-			{
-				(*j).authorname[k-1][n] = 0;
-				k=0;
-				x ++;
-				n++;
-			}
-			/*
-			if(n==0 && k>0 && x==0 && author_buffer!) the first author
-			{	
-				
-				(*j).authoralias[k-1] = author_buffer;
-				
-			}
-			*/
-			temp = author_buffer;
-
-		}while(author_buffer != 10);
-
-		(*j).numberofauthors = n + 1;
-		if((*j).numberofauthors>1)
-		{
-			strcat((*j).authoralias, "et al.");
-		}
-
-		if(i>MAX_NUMBER_AUTHORS)
-		{
-			valid = FALSE;
-			printf("You have entered too many authors\n");
-		}
-
-	}while(valid!=TRUE);
-	
 
 	do
 	{
@@ -389,35 +359,44 @@ dat_journal_t *dat_journalentry(int no_journals)
 		
 		getchar();
 		do
-		{ if(keywords==10)
+		{ if(keyword_buffer==10)
 			{
-				i = 0;
-				m = 0;
+				i = 0; /*word count*/
+				m = 0; /*letter count*/
+				n = 0;
 			}
 
-			keywords = getchar();
+			keyword_buffer = getchar();
+			keyword_list[MAX_KEYWORD_LENGTH+1];
 			m++;
+			n++;
 
-			if(keywords != (32||44))
+			keyword_list[n-1]=keyword_buffer;
+			if(keyword_buffer != (32||44))
 			{
-				(*j).journalkeywords[m-1][i] = keywords;
+				(*j).journalkeywords[m-1][i] = keyword_buffer;
 
 			}
-			if(keywords == 32 && (temp == 44||m==0))
+			if(keyword_buffer == 32 && (temp == 44||m==0))
 			{
 				(*j).journalkeywords[m-1][i] = 0;
 				m=0;
 				i++;
 			}
+			if(keyword_buffer==10)
+			{
+				keyword_list[n-1] = 0;
+			}
 			
-			temp = keywords;
-		}while(keywords != 10);
+			temp = keyword_buffer;
+		}while(keyword_buffer != 10);
 
 		(*j).numberofkeywords = i + 1;
+
 		if(i>MAX_NUMBER_KEYWORDS)
 		{
 			valid = FALSE;
-			printf("You have entered too many keywords\n");
+			printf("You have entered too many keywords.\n");
 		}
 
 	}while(valid!=TRUE);
@@ -425,17 +404,24 @@ dat_journal_t *dat_journalentry(int no_journals)
 	(*j).referenceno = 10000 + no_journals;
 	printf("Your reference number is: %d\n", (*j).referenceno);
 
+	#ifdef DEBUG
+	printf("DEBUG: dat_journalentry: journal added with fields:\n
+			Title: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n Keywords: %s\n 
+			Reference Number: %d\n", (*j).journaltitle, (*j).authoralias, &(*j).dat_date_dt.date, 
+			&(*j).dat_date_dt.month, &(*j).dat_date_dt.year, keyword_list,(*j).referenceno);
+	#endif
 
 return j;
 
 }
 
 /*******************************************************************************
- * This function will print database options
+ * This function allows users to search through the journals based on fields.
  * inputs: 
- * -
+ * pointer to the head of the linked list, number of journals in the list.
  * outputs: 
- * printed menu
+ * returns TRUE if a match was found for the journal being searched, returns 
+ * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
 int dat_searchjournals(dat_journal_t *head, int no_journals)
@@ -499,11 +485,13 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 }
 
 /*******************************************************************************
- * This function will print database options
+ * This function will compare the search term to titles within the linked list
  * inputs: 
- * -
+ * search term (title being searched), head of the linked list.
  * outputs: 
- * printed menu
+ * printed list of journals with the relevant tile. 
+ * returns TRUE if a match was found for the journal being searched, returns 
+ * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
 int dat_searchtitle(char search_term[], dat_journal_t *head)
@@ -553,11 +541,14 @@ int dat_searchtitle(char search_term[], dat_journal_t *head)
 }
 
 /*******************************************************************************
- * This function will print database options
+ * This function will compare the searched author to authors within the linked 
+ * list
  * inputs: 
- * -
+ * search term (author being searched), head of the linked list.
  * outputs: 
- * printed menu
+ * printed list of journals with the relevant author. 
+ * returns TRUE if a match was found for the journal being searched, returns 
+ * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
 int dat_searchauthor(char search_term[], dat_journal_t *head)
@@ -643,11 +634,14 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
 }	
 
 /*******************************************************************************
- * This function will print database options
+ * This function will compare the searched keyword to titles within the 
+ * linked list
  * inputs: 
- * -
+ * search term (keyword being searched), head of the linked list.
  * outputs: 
- * printed menu
+ * printed list of journals with the keyword. 
+ * returns TRUE if a match was found for the journal being searched, returns 
+ * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
 int dat_searchtags(char searchkeyword[], dat_journal_t *head)
@@ -733,11 +727,14 @@ int dat_searchtags(char searchkeyword[], dat_journal_t *head)
 }
 
 /*******************************************************************************
- * This function will print database options
+ * This function will compare the search date to publication dates
+ * within the linked list
  * inputs: 
- * -
+ * search term (publication date being searched), head of the linked list.
  * outputs: 
- * printed menu
+ * printed list of journals with the publication date. 
+ * returns TRUE if a match was found for the journal being searched, returns 
+ * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
 int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
@@ -789,11 +786,12 @@ int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
 }
 
 /*******************************************************************************
- * This function will print database options
+ * This function will print all the journal info for all journals in the linked
+ * list
  * inputs: 
- * -
+ * number of journals, head of the linked list
  * outputs: 
- * printed menu
+ * printed list of all journals. Will return 1 for a successful print.
  * Author: Riza Tolentino
 *******************************************************************************/	
 int dat_searchall(int no_journals, dat_journal_t *head)
@@ -820,11 +818,15 @@ int dat_searchall(int no_journals, dat_journal_t *head)
 }
 
 /*******************************************************************************
- * This function will print database options
+ * This function will allow admin users to sort through journals before
+ * decided which journal to delete from the database
+ * The user will can input the journal name, authors name, date published
+ * and any keywords. This function will be called in the main.
  * inputs: 
- * -
+ * delete menu choice, head of the linked list, number of journals
  * outputs: 
- * printed menu
+ * the reference number of the journal they would like to delete. If 0 is 
+ * returned, no journal is to be deleted
  * Author: Riza Tolentino
 *******************************************************************************/
 int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
@@ -863,14 +865,14 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 }
 
 /*******************************************************************************
- * This function will allow admin users to delete journals from the database
- * The user will have to input the hournal name, authors name, year published
- * and any keywords. This function will be called in the main.
+ * This function deleteds the journal & journal info from the linked list of
+ * the journal that is to be deleted - as identified with the reference no.
  * inputs: 
- * none
+ * double pointer of the head of the linked list, key - reference number of the
+ * journal to be deleted, number of journals.
  * outputs: 
- * struct of the journal info. The elements within the struct will be the words
- * which the user will be able to search for journals by.
+ * the new number of journals in the linked list. If a journal is successfully 
+ * deleted, there will be 1 less journal in the list.
  * Author: Riza Tolentino
 *******************************************************************************/
 int dat_delete_journal( dat_journal_t **head, int key, int no_journals)
@@ -939,8 +941,7 @@ void dat_print_delete_menu(void)
 }
 
 /*******************************************************************************
- * This function will ensure the datatype inputted by its users is correct
- * and lies within the suitable bounds
+ * This function will print the search options
  * inputs: 
  * searchword - date
  * outputs: 
