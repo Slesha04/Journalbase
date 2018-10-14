@@ -3,15 +3,6 @@
 #include <string.h>
 #include "compression.h"
 
-const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
-    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
-    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
-    'S', 'N', '(', ')' };
-
-const int com_table_freqs[COM_TABLE_SIZE] = { 2000, 700, 600, 550, 500, 480, 
-    450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
-    81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31 };
-
 #ifdef _DEBUG
 /*******************************************************************************
  * strrev
@@ -80,7 +71,7 @@ void com_bitstream_writebit(com_bitstream_t* stream, char bit)
         mask = ~ mask;
     }
 
-    stream->buffer[stream->byte] & mask;
+    stream->buffer[stream->byte] |= mask;
 
     stream->bit++;
 }
@@ -163,9 +154,21 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
     printf("DEBUG: com_buildtree: Computing static huffman tree.... :)\n");
     #endif
 
-    int i, heapsize = 0;
-    com_huffnode_t** heap;
-    com_huffnode_t *lowest, *secondlowest, *high;
+    /* Static frequency data for huffman tree generation. \? is used to represent
+       the start of plain data (not coded.) */
+
+    const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
+    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
+    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
+    'S', 'N', '(', ')' };
+
+    const int com_table_freqs[COM_TABLE_SIZE] = { 2000, 700, 600, 550, 500, 480, 
+    450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
+    81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31 };
+
+    char buffer[32], c;
+    int bits, i, j, heapsize = 0;
+    com_huffnode_t *node, *lowest, *secondlowest, *high, **heap;
 
     /* create heap of node pointers ready for linkin' */
     heap = (com_huffnode_t**)calloc(COM_HEAP_SIZE, sizeof(void*));
@@ -255,7 +258,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         }
 
         #ifdef _DEBUG
-        printf("Lowest nodes are %c (%d freq) and %c (%d freq), linking them.\n",
+        printf("Lowest nodes are %c (%d f) and %c (%d f), linking them.\n",
             secondlowest->character, secondlowest->frequency, 
             lowest->character, lowest->frequency);
         #endif
@@ -277,11 +280,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
     #ifdef _DEBUG
     /* printf out all huff codes */
     printf("DEBUG: Printing out all huffman codes:\n");
-
-    com_huffnode_t* node;
-    char buffer[32];
-    char c;
-    int bits, j;
+    #endif
 
     for (i = 0; i < COM_TABLE_SIZE; i++)
     {
@@ -299,12 +298,46 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             bits++;
             node = node->up;
         }
+
+        node = heap[i];
         
         strrev(buffer);
 
+        /* set the bits in node struct */
+        node->enc_length = bits;
+
+        for (j = 0; j < bits; j++)
+        {
+            if (buffer[j] == '0')
+            {
+                node->enc_bits[j] = 0;
+            }
+            else if (buffer[j] == '1')
+            {
+                node->enc_bits[j] = 1;
+            }
+            else
+            {
+                printf("ERROR: com_buildtree: invalid binary character\n");
+                node->enc_bits[j] = 0;
+            }
+        }
+
+        #ifdef _DEBUG
         printf("Character %c code %s\n", c, buffer);
+
+        /*printf("enc data ");
+
+        for (j = 0; j < node->enc_length; j++)
+        {
+            printf("%d", node->enc_bits[j]);
+        }
+
+        printf("\n");*/
+        #endif
     }
 
+    #ifdef _DEBUG
     /* test to find which character 111011 is 
        remember, 1 is right 0 is left */
     node = heap[heapsize - 1];
@@ -368,11 +401,10 @@ void com_freetree(com_huffnode_t** tree, int treesize)
 *******************************************************************************/
 com_huffnode_t* com_getnode(char character, com_huffnode_t** tree)
 {
-    /* ? is reserved for our "uncoded data" flag */
-    if (character == '\?')
-    {
-        return 0;
-    }
+    const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
+    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
+    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
+    'S', 'N', '(', ')' };
 
     int i;
 
@@ -400,7 +432,7 @@ int com_decompressfile(dat_file_t* file)
 {
     if (!file->compressed)
     {
-        printf("Error: Trying to decompress a decompressed file.\n");
+        printf("Error: Trying to decompress a non-compressed file.\n");
 
         return 1;
     }
@@ -467,18 +499,20 @@ int com_compressfile(dat_file_t* file)
         return 1;
     }
 
-    char* currentchar = file->data;
-    int i, comlen = 0, origlen = 0;
+    char c, noncode = '\?';
+    int i, bit = 0, comlen = 0, origlen = 0;
     com_huffnode_t* node = 0;
-
-    printf("Testing compression on data \'%s\'\n", (char*)file->data);
-
-    printf("Original data:\n");
-
     com_bitstream_t bitreader;
     bitreader.buffer = file->data;
     bitreader.byte = 0;
     bitreader.bit = 0;
+
+    #ifdef _DEBUG
+    char buffer[32];
+
+    printf("DEBUG: Testing compression on data \'%s\'\n", (char*)file->data);
+
+    printf("Original data (%d bytes:)\n", file->length);
 
     for (i = 0; i < (file->length * 8); i++)
     {
@@ -491,36 +525,53 @@ int com_compressfile(dat_file_t* file)
     }
 
     printf("\nCompressed data:\n");
+    #endif
 
     for (i = 0; i < file->length; i++)
     {
         origlen += 8;
 
-        node = com_getnode(*currentchar, tree);
+        c = ((char*)file->data)[i];
 
-        currentchar++;
+        if (c == noncode)
+        {
+            node = 0;
+        }
+        else
+        {
+            node = com_getnode(c, tree);
+        }
 
         if (!node)
         {
-            comlen += 8;
+            node = com_getnode(noncode, tree);
+            comlen += 16;
             continue;
         }
 
-        while (node)
+        /* we're going in reverse */
+        while(node->up)
         {
-            printf("%d", (int)node->updir);
+            bit = comlen % 8;
+
+            sprintf(&buffer[bit], "%d", (int)node->updir);
+            
             node = node->up;
 
-            if ((comlen % 8) == 7)
+            if (bit == 7)
             {
-                printf (" ");
+                strrev(buffer);
+                printf ("%s ", buffer);
+
+                memset(buffer, 0, 32);
             }
 
             comlen++;
         }
     }
 
-    int rem = 8 - (comlen % 8);
+    #ifdef _DEBUG
+    int rem = 7 - bit;
 
     for (i = 0; i < rem; i++)
     {
@@ -528,8 +579,10 @@ int com_compressfile(dat_file_t* file)
         comlen++;
     }
 
-    printf("\nOriginal: %d bytes. Compressed: %d bytes (padded to 8 bit).\n", 
+    printf("\nOriginal: %d bytes. Compressed: %d bytes (padded to 8 bits).\n", 
         origlen / 8, comlen / 8);
+
+    #endif
 
     /* dispose of the huffman tree */
     com_freetree(tree, treesize);

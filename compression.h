@@ -3,10 +3,8 @@
 
 #include "types.h"
 
-/* Static frequency data for huffman tree generation. \? is used to represent
-   the start of plain data (not coded.) */
-
-/* table size cannot be more than heap size */
+/* table size cannot be more than heap size. if heap size is inadequate, 
+   com functions will fail. */
 #define COM_TABLE_SIZE 40
 #define COM_HEAP_SIZE 100
 
