@@ -5,36 +5,6 @@
 #include "compression.h"
 #include "encryption.h"
 
-/*******************************************************************************
- * This function will print database options
- * inputs: 
- * -
- * outputs: 
- * printed menu
- * Author: Riza Tolentino
-*******************************************************************************/
-/*dat_journal_t *dat_init(void)
-{
-	just write this in main
-	dat_journal_t *j;
- 
-    dat_journal_t *head = NULL;
-    head = malloc(sizeof(dat_journal_t));
- 
-
-    if(head == NULL)
-    {
-	    	
-	   	printf("No memory allocated\n");	
-	}
-
-
-	dat_journal_t *current = head;
-
-	head->next = NULL;	
-	return j;
-}
-*/
 
 /*******************************************************************************
  * dat_add
