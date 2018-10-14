@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+typedef unsigned long long block_t;
+
 /*******************************************************************************
  * This function decrypts a file loaded into memory
  * inputs: 

@@ -2,7 +2,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#define _DEBUG
+/*#define DEBUG*/
 
 #define FALSE 0
 #define TRUE 1
