@@ -113,7 +113,7 @@ int main(void)
 		break;
 	}
 
-	}while(dat_menu_selection != 4);
+	}while(dat_menu_selection !=4);
 
     /*f = fopen("compressed.txt", "w+");
     fwrite(testfile.data, sizeof(char), testfile.length, f);

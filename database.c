@@ -235,14 +235,17 @@ int dat_open(const char* storename)
 dat_journal_t *dat_journalentry(int no_journals)
 {
 
+	#ifdef DEBUG
+	printf("DEBUG: dat_journalentry: adding journal no. %d.\n", no_journals);
+	#endif
 
 	dat_journal_t *j = NULL;
 	j = malloc(sizeof(dat_journal_t));
     
 
 	int valid = TRUE, validcheck2 = TRUE, check;
-	int i = 0, m = 0, k=0, n=0, x=0;
-	char keywords, temp, author_buffer;
+	int i = 0, m = 0, k=0, n=0, x=0; /*counters/flags*/
+	char keyword_buffer, temp, author_buffer;
 	char d_buffer[BUFFER_LENGTH], m_buffer[BUFFER_LENGTH], y_buffer[BUFFER_LENGTH];
 
     if(j == NULL){
@@ -279,13 +282,58 @@ dat_journal_t *dat_journalentry(int no_journals)
 
 	}while(dat_checkword((*j).journaltitle)==FALSE);
 
+
 	do{
+		printf("Enter the Author's Name, if multiple authors, separate by a comma and space>\n");
+		getchar();
+		do
+		{ 
+			if(author_buffer==10)
+			{
+				n = 0;
+				k = 0;
+			}
+
+			author_buffer = getchar();
+			k++;
+
+			if(author_buffer != (32||44))
+			{
+				(*j).authorname[k-1][n] = author_buffer;
+				if(n==0 && author_buffer!=10)
+				{
+					(*j).authoralias[k-1] = author_buffer;
+				}
+			}
+			if(author_buffer == 32 && (temp == 44||m==0))
+			{
+				(*j).authorname[k-1][n] = 0;
+				k=0;
+				x ++;
+				n++;
+			}
+			
+			temp = author_buffer;
+
+		}while(author_buffer != 10);
+
+		(*j).numberofauthors = n + 1;
+		if((*j).numberofauthors>1)
+		{
+			strcat((*j).authoralias, "et al.");
+		}
+
+		if(i>MAX_NUMBER_AUTHORS)
+		{
+			valid = FALSE;
+			printf("You have entered too many authors\n");
+		}
+
+	}while(valid!=TRUE);
+	
+		do{
 		/*if the input has been previously invalid but skipped the first warning, 
 		the user will now be warned*/
-		if(validcheck2==FALSE)
-		{
-			printf("Invalid date\n");
-		}
 
 		printf("Enter the Publication Date>\n");
 		
@@ -321,68 +369,12 @@ dat_journal_t *dat_journalentry(int no_journals)
 		valid = (dat_checksearchdate((*j).dat_date_dt.date, 
 			(*j).dat_date_dt.month, (*j).dat_date_dt.year));
 
-		if(valid==FALSE)
+		if(valid==FALSE||validcheck2==FALSE)
 		{
 			printf("Invalid date\n");
 		}
 
 	}while(valid == FALSE);
-
-	do{
-		printf("Enter the Author's Name, if multiple authors, separate by a comma and space>\n");
-		getchar();
-		do
-		{ 
-			if(author_buffer==10)
-			{
-				n = 0;
-				k = 0;
-			}
-
-			author_buffer = getchar();
-			k++;
-
-			if(author_buffer != (32||44))
-			{
-				(*j).authorname[k-1][n] = author_buffer;
-				if(n==0 && author_buffer!=10)
-				{
-					(*j).authoralias[k-1] = author_buffer;
-				}
-			}
-			if(author_buffer == 32 && (temp == 44||m==0))
-			{
-				(*j).authorname[k-1][n] = 0;
-				k=0;
-				x ++;
-				n++;
-			}
-			/*
-			if(n==0 && k>0 && x==0 && author_buffer!) the first author
-			{	
-				
-				(*j).authoralias[k-1] = author_buffer;
-				
-			}
-			*/
-			temp = author_buffer;
-
-		}while(author_buffer != 10);
-
-		(*j).numberofauthors = n + 1;
-		if((*j).numberofauthors>1)
-		{
-			strcat((*j).authoralias, "et al.");
-		}
-
-		if(i>MAX_NUMBER_AUTHORS)
-		{
-			valid = FALSE;
-			printf("You have entered too many authors\n");
-		}
-
-	}while(valid!=TRUE);
-	
 
 	do
 	{
@@ -391,35 +383,44 @@ dat_journal_t *dat_journalentry(int no_journals)
 		
 		getchar();
 		do
-		{ if(keywords==10)
+		{ if(keyword_buffer==10)
 			{
-				i = 0;
-				m = 0;
+				i = 0; /*word count*/
+				m = 0; /*letter count*/
+				n = 0;
 			}
 
-			keywords = getchar();
+			keyword_buffer = getchar();
+			keyword_list[MAX_KEYWORD_LENGTH+1];
 			m++;
+			n++;
 
-			if(keywords != (32||44))
+			keyword_list[n-1]=keyword_buffer;
+			if(keyword_buffer != (32||44))
 			{
-				(*j).journalkeywords[m-1][i] = keywords;
+				(*j).journalkeywords[m-1][i] = keyword_buffer;
 
 			}
-			if(keywords == 32 && (temp == 44||m==0))
+			if(keyword_buffer == 32 && (temp == 44||m==0))
 			{
 				(*j).journalkeywords[m-1][i] = 0;
 				m=0;
 				i++;
 			}
+			if(keyword_buffer==10)
+			{
+				keyword_list[n-1] = 0;
+			}
 			
-			temp = keywords;
-		}while(keywords != 10);
+			temp = keyword_buffer;
+		}while(keyword_buffer != 10);
 
 		(*j).numberofkeywords = i + 1;
+
 		if(i>MAX_NUMBER_KEYWORDS)
 		{
 			valid = FALSE;
-			printf("You have entered too many keywords\n");
+			printf("You have entered too many keywords.\n");
 		}
 
 	}while(valid!=TRUE);
@@ -427,6 +428,12 @@ dat_journal_t *dat_journalentry(int no_journals)
 	(*j).referenceno = 10000 + no_journals;
 	printf("Your reference number is: %d\n", (*j).referenceno);
 
+	#ifdef DEBUG
+	printf("DEBUG: dat_journalentry: journal added with fields:\n
+			Title: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n Keywords: %s\n 
+			Reference Number: %d\n", (*j).journaltitle, (*j).authoralias, &(*j).dat_date_dt.date, 
+			&(*j).dat_date_dt.month, &(*j).dat_date_dt.year, keyword_list,(*j).referenceno);
+	#endif
 
 return j;
 
