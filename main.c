@@ -9,7 +9,7 @@ int main(void)
 {
 	printf("YEET\n");
 
- /*database testing*/
+ 	/*database testing*/
     int dat_menu_selection=0; 
     char choice_buffer[2];
     int total_journal_count = 0, relative_count =0;
@@ -67,7 +67,7 @@ int main(void)
 			delete_key = dat_delete_sort(dat_delete_menu_selection, head, total_journal_count);
 			if(delete_key != 0)
 			{
-			relative_count = dat_delete_Journal(&head, delete_key, relative_count);
+				relative_count = dat_delete_journal(&head, delete_key, relative_count);
 			}
 		}
 	}
@@ -84,25 +84,5 @@ int main(void)
 
 	}while(dat_menu_selection != 4);
 
-    /*f = fopen("compressed.txt", "w+");
-    fwrite(testfile.data, sizeof(char), testfile.length, f);
-    fclose(f);
-
-    com_decompressfile(&testfile);
-
-    f = fopen("decompressed.txt", "w+");
-    fwrite(testfile.data, sizeof(char), testfile.length, f);
-    fclose(f);
-
-
-    free(testfile.data);*/
-
-    /*printf("Data has been compressed and decompressed: %s\n", 
-        (char*)testfile.data);*/
-
-
     return 0;
-
-
-
 }

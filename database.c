@@ -234,8 +234,6 @@ int dat_open(const char* storename)
 *******************************************************************************/
 dat_journal_t *dat_journalentry(int no_journals)
 {
-
-
 	dat_journal_t *j = NULL;
 	j = malloc(sizeof(dat_journal_t));
     
@@ -875,7 +873,7 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
  * which the user will be able to search for journals by.
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_delete_Journal( dat_journal_t **head, int key, int no_journals)
+int dat_delete_journal( dat_journal_t **head, int key, int no_journals)
 {
 	dat_journal_t* temp = *head, *prev;
 

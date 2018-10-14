@@ -35,7 +35,7 @@ int dat_searchall(int no_journals, dat_journal_t *head);
 
 int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals);
 
-int dat_delete_Journal( dat_journal_t **head, int key, int no_journals);
+int dat_delete_journal( dat_journal_t **head, int key, int no_journals);
 
 void dat_print_menu();
 
