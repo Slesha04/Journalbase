@@ -2,15 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "compression.h"
-<<<<<<< HEAD
 #include "encryption.h"
-
-
-=======
-#include "compression.c"
 #include "database.h"
-#include "database.c"
->>>>>>> 579830b7e86bd44a2481f770fd8c7b23645b37c0
 
 int main(void)
 {
@@ -122,7 +115,7 @@ int main(void)
 
 	}while(dat_menu_selection != 4);
 
-    f = fopen("compressed.txt", "w+");
+    /*f = fopen("compressed.txt", "w+");
     fwrite(testfile.data, sizeof(char), testfile.length, f);
     fclose(f);
 
@@ -133,7 +126,7 @@ int main(void)
     fclose(f);
 
 
-    free(testfile.data);
+    free(testfile.data);*/
 
     /*printf("Data has been compressed and decompressed: %s\n", 
         (char*)testfile.data);*/

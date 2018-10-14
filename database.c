@@ -5,11 +5,6 @@
 #include "compression.h"
 #include "encryption.h"
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> 579830b7e86bd44a2481f770fd8c7b23645b37c0
 /*******************************************************************************
  * This function will print database options
  * inputs: 
@@ -146,7 +141,7 @@ int dat_add(const char* filename, const char* storename)
  *  return 0 if successful, 1 if failed.
  * Author: Miles Burchell
 *******************************************************************************/
-dat_file_t* dat_open(const char* storename)
+int dat_open(const char* storename)
 {
 	#ifdef _DEBUG
 	printf("DEBUG: dat_open: opening file %s.\n", storename);
@@ -229,56 +224,6 @@ dat_file_t* dat_open(const char* storename)
 	return 0;
 }
 
-/*int dat_add(const char* filename)
-{
-	FILE* journalfiletext;
-	FILE* database_journal;
-	dat_file_t file;
-	long filesize;
-	size_t file_result;
-
-    journalfiletext = fopen(filename, "r");
-    database_journal = fopen(DB_FN, "w");
-    if(journalfiletext==NULL)
-    {
-    	printf("Read error\n");
-   		return FALSE;
-    }
-
-    fseek(journalfiletext, 0, SEEK_END);
-    filesize = ftell(journalfiletext);
-    rewind(journalfiletext);
-
-    file.data = (char*)malloc(sizeof(char)*filesize);
-    if(file.data==NULL)
-    {
-    	printf("Memory error\n");
-    	return FALSE;
-    }
-
-    file_result=fread(file.data,sizeof(char),filesize,journalfiletext);
-    if(file_result != filesize)
-    {
-    	printf("Read error 2\n");
-    }
-
-<<<<<<< HEAD
-     the file is loadedin the memory.
-    com_compressfile(file);
-    enc_encryptfile(file);
-    fwrite(filename);
-=======
-   /*the file is loadedin the memory.*/
-    com_compressfile(&file);
-    /*enc_encryptfile(file);*/
-    fwrite(file.data, sizeof(char),filesize, database_journal);
->>>>>>> 579830b7e86bd44a2481f770fd8c7b23645b37c0
-
-    fclose(database_journal);
-    fclose(journalfiletext);
-    return TRUE;
-}*/
-
 /*******************************************************************************
  * This function will print database options
  * inputs: 
@@ -311,7 +256,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 		printf("Enter the File Name>\n");
 		scanf(" %[^\n]s", (*j).filename);
 
-		if(dat_add((*j).filename)==FALSE)
+		if(dat_add((*j).filename, "stored.txt")==FALSE)
 		{
 			valid = FALSE;
 		}
