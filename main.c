@@ -7,38 +7,7 @@
 
 int main(void)
 {
-
-	/*
-
-    FILE* f = fopen("comp_test.txt", "r");
-
-    if (!f)
-    {
-        printf("Couldn't open comp_test.txt\n");
-        return 1;
-    }
-
-
-    dat_file_t testfile;
-
-    fseek (f, 0 , SEEK_END);
-    testfile.length = ftell(f);
-    rewind(f);
-    
-    testfile.compressed = 0;
-    testfile.encrypted = 0;
-    testfile.data = calloc(sizeof(char), testfile.length);
-
-    fread(testfile.data, sizeof(char), testfile.length, f);
-
-    printf("Read %d bytes\n", testfile.length);
-
-    fclose(f);
-
-    com_compressfile(&testfile);
-
-
-  */
+	printf("YEET\n");
 
  /*database testing*/
     int dat_menu_selection=0; 

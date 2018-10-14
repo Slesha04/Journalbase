@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include "encryption.h"
 
+void enc_crypt(block_t data)
+{
+    
+}
+
 /*******************************************************************************
  * This function decrypts a file loaded into memory
  * inputs: 

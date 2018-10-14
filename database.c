@@ -49,7 +49,7 @@
 *******************************************************************************/
 int dat_add(const char* filename, const char* storename)
 {
-	#ifdef _DEBUG
+	#ifdef DEBUG
 	printf("DEBUG: dat_add: adding file %s.\n", filename);
 	#endif
 
@@ -143,7 +143,7 @@ int dat_add(const char* filename, const char* storename)
 *******************************************************************************/
 int dat_open(const char* storename)
 {
-	#ifdef _DEBUG
+	#ifdef DEBUG
 	printf("DEBUG: dat_open: opening file %s.\n", storename);
 	#endif
 

@@ -286,8 +286,9 @@ int com_bitstream_writehuff(com_bitstream_t* stream, com_huffnode_t* node)
 *******************************************************************************/
 int com_buildtree(com_huffnode_t*** tree_p_out)
 {
-    #ifdef _DEBUG
+    #ifdef DEBUG
     printf("DEBUG: com_buildtree: Computing static huffman tree....\n");
+    char c;
     #endif
 
     /* Static frequency data for huffman tree generation. \? is used to represent
@@ -302,7 +303,8 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
     450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
     81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31, 30};
 
-    char buffer[32], c;
+    char buffer[32];
+
     int bits, i, j, heapsize = 0;
     com_huffnode_t *node, *lowest, *secondlowest, *high, **heap;
 
@@ -362,7 +364,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         if (lowest->frequency == 0x7fffffff || 
             secondlowest->frequency == 0x7fffffff)
         {
-            #ifdef _DEBUG
+            #ifdef DEBUG
             printf("Huffman tree finished, used %d nodes.\n", heapsize);
             int total = 0;
 
@@ -393,7 +395,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             return 0;
         }
 
-        #ifdef _DEBUG
+        #ifdef DEBUG
         printf("Lowest nodes are %c (%d f) and %c (%d f), linking them.\n",
             secondlowest->character, secondlowest->frequency, 
             lowest->character, lowest->frequency);
@@ -413,7 +415,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         heapsize++;
     }
 
-    #ifdef _DEBUG
+    #ifdef DEBUG
     /* printf out all huff codes */
     printf("DEBUG: Printing out all huffman codes:\n");
     #endif
@@ -425,8 +427,10 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         node = heap[i];
         bits = 0;
 
+        #ifdef DEBUG
         c = node->character;
-
+        #endif
+        
         /* we're going in reverse */
         while(node->up)
         {
@@ -459,12 +463,12 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             }
         }
 
-        #ifdef _DEBUG
+        #ifdef DEBUG
         printf("Character %c code %s\n", c, buffer);
         #endif
     }
 
-    #ifdef _DEBUG
+    #ifdef DEBUG
     /* test to find which character 111011 is 
        remember, 1 is right 0 is left */
     node = heap[heapsize - 1];
@@ -482,7 +486,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
     {
         heap = reheap;
     }
-    #ifdef _DEBUG
+    #ifdef DEBUG
     else
     {
         printf("com_buildtree: couldn't realloc heap pointer block! :(\n");
@@ -895,7 +899,7 @@ int com_compressfile(dat_file_t* file)
     /* Finish up the last byte if we haven't already */
     com_bitstream_skip(&bitwriter);
 
-    #ifdef _DEBUG
+    #ifdef DEBUG
     double comp_ratio = 0.0;
 
     /* Write compression ratio */
