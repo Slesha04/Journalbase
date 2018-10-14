@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "compression.h"
+#include "encryption.h"
+
+
 
 int main(void)
 {

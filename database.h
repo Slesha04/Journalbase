@@ -16,7 +16,7 @@
 
 /*void dat_init(void);*/
 
-int dat_add(const char* filename);
+int dat_add(const char* filename, const char* storename);
 
 dat_journal_t *dat_journalentry(int no_journals);
 

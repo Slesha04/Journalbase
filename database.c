@@ -5,11 +5,6 @@
 #include "compression.h"
 #include "encryption.h"
 
-/*int main(void)
-{
-	return 0;
-}*/
-
 /*******************************************************************************
  * This function will print database options
  * inputs: 
@@ -41,7 +36,195 @@
 }
 */
 
-int dat_add(const char* filename)
+/*******************************************************************************
+ * dat_add
+ * This function reads a file from disk, compresses it, encrypts it, and writes
+ * it to disk with a new name.
+ * inputs: 
+ *  filename: name of file to open
+ *  storename: name of file to write to (will create/open)
+ * outputs: 
+ *  return 0 if successful, 1 if failed.
+ * Author: Miles Burchell
+*******************************************************************************/
+int dat_add(const char* filename, const char* storename)
+{
+	#ifdef _DEBUG
+	printf("DEBUG: dat_add: adding file %s.\n", filename);
+	#endif
+
+	dat_file_t file; /* file in memory */
+	FILE* file_stream;
+	size_t bytes_read = 0;
+
+	file_stream = fopen(filename, "r"); /*open file stream */
+
+	if (!file_stream)
+    {
+        printf("Error: dat_add: couldn't open file %s.\n", filename);
+        return 1;
+    }
+
+	/* get length */
+	fseek(file_stream, 0 , SEEK_END);
+    file.length = ftell(file_stream);
+    rewind(file_stream);
+
+	/* set flags */
+	file.compressed = FALSE;
+	file.encrypted = FALSE;
+	/* allocate memory for file contents in memory */
+	file.data = calloc(sizeof(char), file.length + 1);
+
+	if (!file.data)
+    {
+        printf("Error: dat_add: out of memory.\n");
+
+		fclose(file_stream);
+
+        return 1;
+    }
+
+	/* read whole file */
+	bytes_read = fread(file.data, sizeof(char), file.length, file_stream);
+
+	fclose(file_stream);
+
+	if (bytes_read < file.length)
+    {
+        printf("Error: dat_add: error reading file %s.\n", filename);
+
+        return 1;
+    }
+
+	/* compress file */
+	com_compressfile(&file);
+
+	/* encrypt file */
+	enc_encryptfile(&file);
+
+	/* open store file for writing */
+	file_stream = fopen(storename, "w");
+
+	if (!file_stream)
+    {
+        printf("Error: dat_add: couldn't open file %s.\n", storename);
+
+		fclose(file_stream);
+
+        return 1;
+    }
+
+	/* write store file */
+	bytes_read = fwrite(file.data, sizeof(char), file.length, file_stream);
+
+	fclose(file_stream);
+
+	if (bytes_read < file.length)
+    {
+        printf("Error: dat_add: error writing file %s.\n", filename);
+
+        return 1;
+    }
+
+	return 0;
+}
+
+/*******************************************************************************
+ * dat_open
+ * This function reads a stored encrypted and compressed file from disk, 
+ * decrypts and decomrpesses it and writes it to temp.txt for use. temp.txt
+ * must be disposed of after use.
+ * inputs: 
+ *  storename: name of file to open
+ * outputs: 
+ *  return 0 if successful, 1 if failed.
+ * Author: Miles Burchell
+*******************************************************************************/
+dat_file_t* dat_open(const char* storename)
+{
+	#ifdef _DEBUG
+	printf("DEBUG: dat_open: opening file %s.\n", storename);
+	#endif
+
+	dat_file_t file; /* file in memory */
+	FILE* file_stream;
+	size_t bytes_read = 0;
+
+	file_stream = fopen(storename, "r"); /*open file stream */
+
+	if (!file_stream)
+    {
+        printf("Error: dat_open: couldn't open file %s.\n", storename);
+        return 1;
+    }
+
+	/* get length */
+	fseek(file_stream, 0 , SEEK_END);
+    file.length = ftell(file_stream);
+    rewind(file_stream);
+
+	/* set flags */
+	file.compressed = TRUE;
+	file.encrypted = TRUE;
+	/* allocate memory for file contents in memory */
+	file.data = calloc(sizeof(char), file.length + 1);
+
+	if (!file.data)
+    {
+        printf("Error: dat_open: out of memory.\n");
+
+		fclose(file_stream);
+
+        return 1;
+    }
+
+	/* read whole file */
+	bytes_read = fread(file.data, sizeof(char), file.length, file_stream);
+
+	fclose(file_stream);
+
+	if (bytes_read < file.length)
+    {
+        printf("Error: dat_open: error reading file %s.\n", storename);
+
+        return 1;
+    }
+
+	/* decrypt */
+	enc_decryptfile(&file);
+
+	/* decompress */
+	com_decompressfile(&file);
+
+	/* open temp file for writing */
+	file_stream = fopen("temp.txt", "w");
+
+	if (!file_stream)
+    {
+        printf("Error: dat_open: couldn't open temp file.\n");
+
+		fclose(file_stream);
+
+        return 1;
+    }
+
+	/* write temp file */
+	bytes_read = fwrite(file.data, sizeof(char), file.length, file_stream);
+
+	fclose(file_stream);
+
+	if (bytes_read < file.length)
+    {
+        printf("Error: dat_open: error writing to temp file.\n");
+
+        return 1;
+    }
+
+	return 0;
+}
+
+/*int dat_add(const char* filename)
 {
 	FILE* journalfiletext;
 	dat_file_t file;
@@ -55,12 +238,10 @@ int dat_add(const char* filename)
    		return FALSE;
     }
 
-    /*obtain file length*/
     fseek(journalfiletext, 0, SEEK_END);
     filesize = ftell(journalfiletext);
-    rewind(journalfiletext); /*returns pointer to start*/ 
+    rewind(journalfiletext);
 
-    /*allocate the memory for the file*/
     file.data = (char*)malloc(sizeof(char)*filesize);
     if(file.data==NULL)
     {
@@ -74,15 +255,15 @@ int dat_add(const char* filename)
     	printf("Read error\n");
     }
 
-   /*the file is loadedin the memory.
+     the file is loadedin the memory.
     com_compressfile(file);
     enc_encryptfile(file);
-    fwrite(filename);*/
+    fwrite(filename);
 
     
     fclose(journalfiletext);
     return TRUE;
-}
+}*/
 
 /*******************************************************************************
  * This function will print database options
