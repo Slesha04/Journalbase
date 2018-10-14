@@ -114,7 +114,7 @@ typedef struct com_huffnode
 
 typedef struct com_bitstream
 {
-    unsigned char* buffer;
+    char* buffer;
     int byte; /* current byte offset */
     int bit; /* current bit offset */
 } com_bitstream_t;
