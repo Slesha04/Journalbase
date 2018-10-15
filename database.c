@@ -332,7 +332,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 			strcat((*j).authoralias, "et al.");
 		}
 
-		if(i>MAX_NUMBER_AUTHORS)
+		if((*j).numberofauthors>MAX_NUMBER_AUTHORS)
 		{
 			valid = FALSE;
 			printf("You have entered too many authors\n");
@@ -405,12 +405,12 @@ dat_journal_t *dat_journalentry(int no_journals)
 			temp = keyword_buffer;
 		}while(keyword_buffer != 10);
 
-		(*j).numberofkeywords = i + 2;
+		(*j).numberofkeywords = i + 1;
 		#ifdef DEBUG
-		printf("i is: %d\n", i);
+		printf("Number of keywords is: %d\n", (*j).numberofkeywords);
 		#endif
 		
-		if(i>MAX_NUMBER_KEYWORDS)
+		if((*j).numberofkeywords>MAX_NUMBER_KEYWORDS)
 		{
 			valid = FALSE;
 			printf("You have entered too many keywords.\n");
@@ -459,19 +459,25 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 	else
 	{
 		dat_printsearchoptions();
-		scanf("%s", choice_buffer);
+		
 
-
-		int search_choice = atoi(choice_buffer);
-		/*CHECK MENU INPUT*/
-		do
+		while (1)
 		{
+			scanf("%s", choice_buffer);
+			int search_choice = atoi(choice_buffer);
+		
+			if(dat_check_menu_input(search_choice, 1, 5)==FALSE)
+			{
+				continue;
+			}
+
 			if(search_choice == 1)
 			{
 				printf("Enter the Title you are searching for>\n");
 
 				scanf(" %[^\n]s", searchtitle);
 				search_success = dat_searchtitle(searchtitle, head);
+				return search_success;
 
 			}
 			if(search_choice == 2)
@@ -479,6 +485,7 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 				printf("Enter an Author>\n");
 				scanf(" %[^\n]s", searchauthor);
 				search_success = dat_searchauthor(searchauthor, head);
+				return search_success;
 			}
 			if(search_choice == 3)
 			{
@@ -486,7 +493,7 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 				/*printf("Enter the Publication Date of the Journal>\n");*/
 				searchdate = dat_scan_date();
 				search_success = dat_searchdate(searchdate, head);
-				
+				return search_success;
 
 			}
 			if(search_choice == 4)
@@ -494,16 +501,16 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 				printf("Enter a Keyword>\n");
 				scanf(" %[^\n]s", searchkeyword);
 				search_success = dat_searchtags(searchkeyword, head);
-
+				return search_success;
 			}
 			if(search_choice == 5)
 			{
 				search_success = dat_searchall(no_journals, head);
-
+				return search_success;
 			}	
-		}while(dat_check_menu_input(search_choice, 1,5)!=TRUE);
+		}
 	}
-	return search_success;
+	
 }
 
 /*******************************************************************************
@@ -922,6 +929,12 @@ int dat_delete_journal( dat_journal_t **head, int key, int no_journals)
 
 	prev->next = temp->next;
 	free(temp);
+	#ifdef DEBUG
+		if(temp==NULL)
+		{
+			printf("DEBUG: file %d was removed", key);
+		}
+	#endif
 	return no_journals - 1;
 }
 
@@ -1075,19 +1088,53 @@ int dat_save_journal_data(dat_journal_t *head, int no_journals)
 {
 	FILE* journalinfo;
 	dat_journal_t * current = head->next;
-	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "w");
+	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "r+");
+	int i, j;
 
 
 	if(journalinfo)
 	{
 		fprintf(journalinfo, "%d\n", no_journals);
+
+		while(current!=NULL)
+			{ 	if(current->next == NULL)
+				{
+					fprintf(journalinfo, "%d", current->referenceno);
+				}
+				current = current->next;
+			}
+			/*find what the last reference number is, the total number of journals will be referenceno - 10000*/
 		while(current != NULL)
 			{
 			
-				fprintf(journalinfo, "%-8.5d %-9.8s %-10.10s %02d %02d %04d \n", current->referenceno, 
+				fprintf(journalinfo, "% d %s %s %d %d %d \n", current->referenceno, 
 				current->journaltitle, current->authoralias,
 			 	current->dat_date_dt.date, current->dat_date_dt.month, 
 			 	current->dat_date_dt.year);
+
+				fprintf(journalinfo, " %s %s", current->filename, current->stored_filename);
+				fprintf(journalinfo, " %d %d ", current->numberofkeywords, current-> numberofauthors);
+
+				for(i=0;i<current->numberofkeywords;i++)
+				{
+					fprintf(journalinfo," ");
+					for(j=0;(current->journalkeywords[j+1][i] != ('\0')); j++)
+					{
+						fprintf(journalinfo, "%c", current->journalkeywords[j][i]);
+					}
+					
+				}
+
+
+				for(i=0;i<current->numberofauthors;i++)
+				{
+					fprintf(journalinfo," ");
+					for(j=0;(current->authorname[j+1][i] != ('\0')); j++)
+					{
+						fprintf(journalinfo, "%c", current->authorname[j][i]);
+					}
+					
+				}
 
 		 		current = current->next;
 
@@ -1116,6 +1163,8 @@ int dat_load_journal_data(dat_journal_t *head)
 	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "r");
 	int no_journals;
 	dat_journal_t * current = head->next;
+	int i, j;
+	int last_referenceno;
 
 	if(journalinfo == NULL)
 	{
@@ -1125,21 +1174,77 @@ int dat_load_journal_data(dat_journal_t *head)
 	if(journalinfo)
 	{
 		fscanf(journalinfo, "%d", &no_journals);
+
+			while(current!=NULL)
+			{ 	if(current->next == NULL)
+				{
+					fscanf(journalinfo, "%d", &last_referenceno);
+				}
+				current = current->next;
+			}
 		while(current != NULL)
 			{
 			
-				fscanf(journalinfo, "%d %s %s %02d %02d %04d \n", &current->referenceno, 
+				fscanf(journalinfo, "%d %s %s %d %d %d \n", &current->referenceno, 
 				current->journaltitle, current->authoralias,
 			 	&current->dat_date_dt.date, &current->dat_date_dt.month, 
 			 	&current->dat_date_dt.year);
+
+			 	fscanf(journalinfo, " %s %s", current->filename, current->stored_filename);
+				fscanf(journalinfo, " %d %d ", &current->numberofkeywords, &current-> numberofauthors);
+
+				for(i=0;i<current->numberofkeywords;i++)
+				{
+					fscanf(journalinfo, " ");
+					for(j=0;(current->journalkeywords[j+1][i] != ('\0')); j++)
+					{
+						fscanf(journalinfo, "%c", &current->journalkeywords[j][i]);
+					}
+					
+				}
+
+				i=0, j=0;
+				for(i=0;i<current->numberofauthors;i++)
+				{
+					fscanf(journalinfo," ");
+					for(j=0;(current->authorname[j+1][i] != ('\0')); j++)
+					{
+						fscanf(journalinfo, "%c", &current->authorname[j][i]);
+					}
+					
+				}
 
 		 		current = current->next;
 
 			}
 			fclose(journalinfo);
 	}
-	return no_journals;
-}  
+	return last_referenceno-10000; /*return total number of journals in linked ever added*/
+
+}
+
+int dat_return_numberofjournals()
+{
+	FILE* journalinfo;
+	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "r");
+	int no_journals;
+
+	if(journalinfo == NULL)
+	{
+		printf("Read error\n");
+		return 0;
+	}
+
+	if(journalinfo)
+	{
+		fscanf(journalinfo, "%d", &no_journals);
+	}
+
+	fclose(journalinfo);
+
+	return no_journals;	
+
+}
 
 /*******************************************************************************
  * This function scans for the date inputted by the user &checks for a valid

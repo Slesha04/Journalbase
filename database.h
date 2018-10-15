@@ -55,6 +55,8 @@ int dat_save_journal_data(dat_journal_t *head, int no_journals);
 
 int dat_load_journal_data(dat_journal_t *head);
 
+int dat_return_numberofjournals();
+
 dat_date_t dat_scan_date(void);
 
 #endif
