@@ -5,7 +5,6 @@
  * Algorithm Modifications:
  *  - 64-bit Sum
  *  - 256-bit Key
- *  - 96 Rounds
  *  - 128 Rounds - Due to key size increase
  *  - Slightly modified bit shifts - For obscurity
  *  - Modulus operation replacing bitwise AND for key iteration
@@ -71,7 +70,7 @@ void enc_decrypt(enc_block_t* data)
     __uint32_t key[8] = { ENC_KEY1, ENC_KEY2, ENC_KEY3, ENC_KEY4,
                           ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8 };
     __uint32_t temp[2];
-    
+
     /* split block into low and high 32-bit DWORDS */
     temp[0] = (*data >> 32) & 0xFFFFFFFF;
     temp[1] = *data & 0xFFFFFFFF;
