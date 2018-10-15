@@ -20,14 +20,6 @@ void log_login_admins(void);
 void log_scan_password(char password[]);
 
 
-int main()
-{
-    log_main_menu();
-    
-    
-}
-
-
 void log_main_menu()
 {
     int choice = 0 ;
