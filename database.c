@@ -204,7 +204,7 @@ int dat_open(const char* storename)
     {
         printf("Error: dat_open: error writing to temp file.\n");
 
-        return 1;
+		return 1;
     }
 
 	/* attempt to open temp file in gvim */
