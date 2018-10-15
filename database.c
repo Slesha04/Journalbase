@@ -231,7 +231,11 @@ dat_journal_t *dat_journalentry(int no_journals)
 		scanf(" %[^\n]s", (*j).filename);
 
 		(*j).referenceno = 10000 + no_journals;
-		sprintf((*j).stored_filename, "%d", (*j).referenceno);
+		sprintf((*j).stored_filename, "%d.jb", (*j).referenceno);
+
+		 #ifdef DEBUG
+		 printf("%s\n", (*j).stored_filename);
+		 #endif
 
 		if(dat_add((*j).filename, (*j).stored_filename)==FALSE)
 		{

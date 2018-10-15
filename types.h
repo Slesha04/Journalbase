@@ -15,7 +15,7 @@
 #define MAX_NUMBER_KEYWORDS 5
 #define MAX_NUMBER_AUTHORS 10
 #define MAX_LENGTH_ALIAS 25
-#define FILENAME_LENGTH 8
+#define FILENAME_LENGTH 256
 
 /******************************************************************************
  * USER STRUCTS
@@ -76,7 +76,7 @@ typedef struct dat_journal
     int numberofkeywords;
     int numberofauthors;
     int referenceno;
-    /*char filename[MAX_TITLE_LENGTH+1];*/
+
     dat_date_t dat_date_dt;
     char filename[FILENAME_LENGTH + 1]; /* null terminated */
     char stored_filename[FILENAME_LENGTH + 1]; 
