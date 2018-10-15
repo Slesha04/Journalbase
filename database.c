@@ -5,7 +5,6 @@
 #include "compression.h"
 #include "encryption.h"
 
-
 /*******************************************************************************
  * dat_add
  * This function reads a file from disk, compresses it, encrypts it, and writes
