@@ -9,9 +9,9 @@
 
 int main(void)
 {
-	printf("YEET...on the street??\n");
+	printf("YEET...on the street???\n");
 
-	log_main_menu();
+	/*log_main_menu();*/
 
  	/*database testing*/
     int dat_menu_selection=0; 

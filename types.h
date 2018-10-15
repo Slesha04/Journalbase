@@ -15,7 +15,7 @@
 #define MAX_NUMBER_KEYWORDS 5
 #define MAX_NUMBER_AUTHORS 10
 #define MAX_LENGTH_ALIAS 25
-#define FILENAME_LENGTH 8
+#define FILENAME_LENGTH 256
 #define MAX_USER_PASS 20
 
 /******************************************************************************
