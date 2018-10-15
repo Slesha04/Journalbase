@@ -1,3 +1,8 @@
+/*******************************************************************************
+ * types.h: Contains preprocessor definitions and structures.
+ * 
+ * Authors: Slesha Mishra, Riza Tolentino, Miles Burchell
+*******************************************************************************/
 
 #ifndef TYPES_H
 #define TYPES_H
@@ -8,6 +13,7 @@
 #define TRUE 1
 
 #define BITS_IN_BYTE 8
+#define BYTES_IN_BLOCK 8
 
 #define MAX_TITLE_LENGTH 256
 #define MAX_KEYWORD_LENGTH 256
@@ -18,32 +24,13 @@
 #define FILENAME_LENGTH 256
 
 #define MAX_USER_PASS 20
+
 /******************************************************************************
- * USER STRUCTS
+ * ENCRYPTION STRUCTS
  *****************************************************************************/
 
-/* defines a user's privilege level */
-typedef enum usr_priv
-{
-    PRIV_NONE = 0,
-    PRIV_READER = 1,
-    PRIV_AUTHOR = 2,
-    PRIV_ADMIN = 3,
-} usr_priv_t;
-
-/* no reason not to use an array here? structure is fixed size & no need to 
-   sort */
-
-/* defines a user */
-typedef struct usr_user
-{
-    struct usr_user* prev;
-    struct usr_user* next;
-    
-	int user_id;
-	int password_hash;
-    usr_priv_t privilege;
-} usr_user_t;
+/* 64 bits of data to be encrypted/decrypted */
+typedef unsigned long long enc_block_t;
 
 /******************************************************************************
  * DATABASE STRUCTS
@@ -88,7 +75,8 @@ typedef struct dat_journal
 typedef struct dat_file
 {
 	void* data;
-	unsigned int length;
+	unsigned int length; /* length in chars (may be rounded up to 8) */
+    unsigned int real_length; /* length of actual data (not rounded up to 8) */
 	char compressed;
 	char encrypted;
 } dat_file_t;
@@ -119,6 +107,10 @@ typedef struct com_bitstream
     int byte; /* current byte offset */
     int bit; /* current bit offset */
 } com_bitstream_t;
+
+/******************************************************************************
+ * LOGIN STRUCTS
+ *****************************************************************************/
 
 typedef struct log_login
 {

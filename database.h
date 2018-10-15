@@ -8,14 +8,13 @@
 #define MAX_AUTHOR_NAME 256
 #define MAX_NUMBER_KEYWORDS 5
 #define MAX_NUMBER_AUTHORS 10
-#define FALSE 0
-#define TRUE 1
+
 #define BUFFER_LENGTH 256
+
 #define MAX_LENGTH_ALIAS 25
+
 #define DAT_JOURNAL_DB_NAME "journal_info_database"
 #define DB_FN "database_journal"
-
-/*void dat_init(void);*/
 
 int dat_add(const char* filename, const char* storename);
 

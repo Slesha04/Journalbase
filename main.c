@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * main.c: Contains program entry point.
+ * 
+ * Authors: Slesha Mishra, Riza Tolentino, Miles Burchell
+*******************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +12,21 @@
 #include "encryption.h"
 #include "database.h"
 #include "login.h"
+
+/* by miles */
+int hashpassword(const char* password)
+{
+	int i, hash = 10000;
+	size_t len = strlen(password);
+
+	for (i = 0; i < len; i++)
+	{
+		hash += password[i] ^ 123 << i;
+		hash -= password[i] % 12;
+	}
+
+	return hash;
+}
 
 int main(void)
 {
@@ -21,6 +42,11 @@ int main(void)
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
 
+	/*scanf(" %s", buffer);
+
+	int hash = hashpassword(buffer);
+
+	printf("Password %s Hash %d", buffer, hash);*/
 
     if(head == NULL)
     {
@@ -90,7 +116,7 @@ int main(void)
 			ref_id += 10000;
 			sprintf(buffer, "%d.jb", ref_id);
 			dat_open(buffer);
-			remove(buffer);
+			remove("temp.txt");
 		}
 	}
 

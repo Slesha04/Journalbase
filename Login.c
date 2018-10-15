@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * login.c: Contains functions for user authentication and management.
+ * 
+ * Authors: Slesha Mishra
+*******************************************************************************/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
