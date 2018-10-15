@@ -7,6 +7,21 @@
 #include "database.h"
 #include "login.h"
 
+/* by miles */
+int hashpassword(const char* password)
+{
+	int i, hash = 10000;
+	size_t len = strlen(password);
+
+	for (i = 0; i < len; i++)
+	{
+		hash += password[i] ^ 123 << i;
+		hash -= password[i] % 12;
+	}
+
+	return hash;
+}
+
 int main(void)
 {
 	printf("YEET...on the street???\n");
@@ -21,6 +36,11 @@ int main(void)
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
 
+	scanf(" %s", buffer);
+
+	int hash = hashpassword(buffer);
+
+	printf("Password %s Hash %d", buffer, hash);
 
     if(head == NULL)
     {
