@@ -21,6 +21,7 @@ int main(void)
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
 
+
     if(head == NULL)
     {
 	   	printf("No memory allocated\n");	
@@ -47,6 +48,7 @@ int main(void)
 		relative_count++;
 
 		j= dat_journalentry(total_journal_count);
+		dat_save_journal_data(head, relative_count);
 		current->next=malloc(sizeof(dat_journal_t));
 		current->next= j;
 		current->next->next = NULL;

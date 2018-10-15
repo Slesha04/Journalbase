@@ -234,10 +234,10 @@ dat_journal_t *dat_journalentry(int no_journals)
 		sprintf((*j).stored_filename, "%d.jb", (*j).referenceno);
 
 		 #ifdef DEBUG
-		 printf("%s\n", (*j).stored_filename);
+		 printf("DEBUG: The stored filename is: %s\n", (*j).stored_filename);
 		 #endif
 
-		if(dat_add((*j).filename, (*j).stored_filename)==FALSE)
+		if(dat_add((*j).filename, (*j).stored_filename))
 		{
 			valid = FALSE;
 		}
@@ -317,6 +317,10 @@ dat_journal_t *dat_journalentry(int no_journals)
 			if(dat_checksearchdate((*j).dat_date_dt.date,(*j).dat_date_dt.month,(*j).dat_date_dt.year)==TRUE)
 			{
 				break;
+			}
+			else
+			{
+				printf("Invalid date\n");
 			}
 		}
 		
@@ -582,8 +586,8 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
 		}
 		if(s>0)
 		{
-			printf("Ref. no. Title     Author     Date Published\n");
-			printf("-------- --------- ---------- --------------\n");		
+			printf("Ref. no. Title           Author          Date Published\n");
+			printf("-------- --------------- --------------- --------------\n");		
 		}
 
 
@@ -675,8 +679,8 @@ int dat_searchtags(char searchkeyword[], dat_journal_t *head)
 		}
 		if(s>0)
 		{
-			printf("Ref. no. Title     Author     Date Published\n");
-			printf("-------- --------- ---------- --------------\n");		
+			printf("Ref. no. Title           Author          Date Published\n");
+			printf("-------- --------------- --------------- --------------\n");			
 		}
 	
 	 /*dat_journal_t * current = head->next;*/
@@ -747,8 +751,8 @@ int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
 		}
 		if(i>0)
 		{
-			printf("Ref. no. Title     Author     Date Published\n");
-			printf("-------- --------- ---------- --------------\n");		
+			printf("Ref. no. Title           Author          Date Published\n");
+			printf("-------- --------------- --------------- --------------\n");		
 		}
 	
 	 /*dat_journal_t * current = head->next;*/
@@ -785,8 +789,8 @@ int dat_searchall(int no_journals, dat_journal_t *head)
 	dat_journal_t * current = head->next;
 		
  
-			printf("Ref. no. Title     Author     Date Published\n");
-			printf("-------- --------- ---------- --------------\n");	
+			printf("Ref. no. Title           Author          Date Published\n");
+			printf("-------- --------------- --------------- --------------\n");		
 			
 			while(current != NULL)
 			{
@@ -1126,7 +1130,7 @@ dat_date_t dat_scan_date(void)
 
 	do{
 		valid = TRUE;
-		printf("Enter the publication date>\n");
+		printf("Enter the publication date in the format DD/MM/YYYY>\n");
 		m = 0;
 
 		while(TRUE){
