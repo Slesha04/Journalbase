@@ -15,7 +15,7 @@ int main(void)
 
  	/*database testing*/
     int dat_menu_selection=0; 
-    char choice_buffer[25+1];
+    char buffer[BUFFER_LENGTH+1];
     int total_journal_count = 0, relative_count =0;
     dat_journal_t *j;
     dat_journal_t *head = NULL;
@@ -32,9 +32,9 @@ int main(void)
 	do{
 
 	dat_print_menu();
-	scanf("%s", choice_buffer);
+	scanf("%s", buffer);
 
-	int dat_menu_selection = atoi(choice_buffer);
+	int dat_menu_selection = atoi(buffer);
 
 	if(dat_check_menu_input(dat_menu_selection, 1, 4)==FALSE)
 	{
@@ -78,7 +78,14 @@ int main(void)
 
 	if(dat_menu_selection == 3)
 	{
-		dat_searchjournals(head, relative_count);
+		int ref_id = dat_searchjournals(head, relative_count);
+
+		if (ref_id)
+		{
+			sprintf(buffer, "%d.jb", ref_id);
+			dat_open(buffer);
+			remove(buffer);
+		}
 	}
 
 	if(dat_menu_selection == 4)

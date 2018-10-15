@@ -51,6 +51,8 @@ int dat_add(const char* filename, const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -62,6 +64,8 @@ int dat_add(const char* filename, const char* storename)
 	if (bytes_read < file.length)
     {
         printf("Error: dat_add: error reading file %s.\n", filename);
+
+		free(file.data);
 
         return 1;
     }
@@ -81,6 +85,8 @@ int dat_add(const char* filename, const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -88,6 +94,8 @@ int dat_add(const char* filename, const char* storename)
 	bytes_read = fwrite(file.data, sizeof(char), file.length, file_stream);
 
 	fclose(file_stream);
+
+	free(file.data);
 
 	if (bytes_read < file.length)
     {
@@ -145,6 +153,8 @@ int dat_open(const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -156,6 +166,8 @@ int dat_open(const char* storename)
 	if (bytes_read < file.length)
     {
         printf("Error: dat_open: error reading file %s.\n", storename);
+
+		free(file.data);
 
         return 1;
     }
@@ -175,6 +187,8 @@ int dat_open(const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -183,12 +197,20 @@ int dat_open(const char* storename)
 
 	fclose(file_stream);
 
+	free(file.data);
+
 	if (bytes_read < file.length)
     {
         printf("Error: dat_open: error writing to temp file.\n");
 
         return 1;
     }
+
+	/* open temp file in vim */
+
+	system("vim temp.txt");
+
+	printf("Returned from opening file.");
 
 	return 0;
 }
@@ -237,7 +259,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 		 printf("%s\n", (*j).stored_filename);
 		 #endif
 
-		if(dat_add((*j).filename, (*j).stored_filename)==FALSE)
+		if(dat_add((*j).filename, (*j).stored_filename))
 		{
 			valid = FALSE;
 		}
@@ -418,8 +440,9 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 	if(no_journals == 0)
 	{
 		printf("There are no journals to search through\n");
-	}
 
+		return 0;
+	}
 	else
 	{
 		dat_printsearchoptions();
@@ -467,7 +490,7 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 			}	
 		}while(dat_check_menu_input(search_choice, 1,5)!=TRUE);
 	}
-	return search_success;
+	return search_success + 10000;
 }
 
 /*******************************************************************************
