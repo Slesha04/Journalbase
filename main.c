@@ -8,7 +8,7 @@
 
 int main(void)
 {
-	printf("YEET...on the street\n");
+	printf("YEET...on the street??\n");
 
  	/*database testing*/
     int dat_menu_selection=0; 
