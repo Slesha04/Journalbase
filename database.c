@@ -97,7 +97,9 @@ int dat_add(const char* filename, const char* storename)
         return 1;
     }
 
-	/* write store file */
+	/* write store file real length (uint32), followed by data */
+	bytes_read = fwrite(&file.real_length, sizeof(unsigned int), 1, 
+		file_stream);
 	bytes_read = fwrite(file.data, sizeof(char), file.length, file_stream);
 
 	fclose(file_stream);
@@ -146,7 +148,8 @@ int dat_open(const char* storename)
 
 	/* get length */
 	fseek(file_stream, 0 , SEEK_END);
-    file.length = ftell(file_stream);
+	/* file length minus real_length int at start of file */
+    file.length = ftell(file_stream) - sizeof(unsigned int);
     rewind(file_stream);
 
 	/* set flags */
@@ -166,7 +169,10 @@ int dat_open(const char* storename)
         return 1;
     }
 
-	/* read whole file */
+	/* read real length */
+	bytes_read = fread(&file.real_length, sizeof(unsigned int), 1,
+		 file_stream);
+	/* read all data */
 	bytes_read = fread(file.data, sizeof(char), file.length, file_stream);
 
 	fclose(file_stream);

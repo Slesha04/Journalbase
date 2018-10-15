@@ -1,6 +1,6 @@
 /*******************************************************************************
  * encryption.c: Contains functions for encrypting and decrypting data via a 
- * modified XTEA algorithm;
+ * modified XTEA algorithm.
  * 
  * Algorithm Modifications:
  *  - 64-bit Sum

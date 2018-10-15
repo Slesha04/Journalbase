@@ -652,7 +652,7 @@ int com_decompressfile(dat_file_t* file)
     node = topnode;
 
     /* Start reading from the input buffer, bit by bit by bit */
-    while (bitreader.byte < file->length)
+    while (bitreader.byte < file->real_length)
     {
         bit = com_bitstream_readbit(&bitreader);
 
@@ -958,7 +958,11 @@ int com_compressfile(dat_file_t* file)
     /* free original data buffer */
     free(file->data);
 
+    /* we need out file to be a multiple of 8 bytes long for our 64-bit 
+       block encryption. So we round up to the nearest multiple of 8 and store
+       the real length. */
     /* set new file length, and compressed attribute */
+    file->real_length = bitwriter.byte;
     file->length = com_roundup8(bitwriter.byte);
     file->compressed = TRUE;
 

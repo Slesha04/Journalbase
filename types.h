@@ -75,7 +75,8 @@ typedef struct dat_journal
 typedef struct dat_file
 {
 	void* data;
-	unsigned int length;
+	unsigned int length; /* length in chars (may be rounded up to 8) */
+    unsigned int real_length; /* length of actual data (not rounded up to 8) */
 	char compressed;
 	char encrypted;
 } dat_file_t;

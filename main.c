@@ -113,7 +113,7 @@ int main(void)
 			ref_id += 10000;
 			sprintf(buffer, "%d.jb", ref_id);
 			dat_open(buffer);
-			remove(buffer);
+			remove("temp.txt");
 		}
 	}
 
