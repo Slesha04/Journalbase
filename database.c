@@ -275,6 +275,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 		scanf(" %[^\n]s", (*j).filename);
 
 		(*j).referenceno = 10000 + no_journals;
+
 		sprintf((*j).stored_filename, "%d.jb", (*j).referenceno);
 
 		 #ifdef DEBUG
@@ -432,6 +433,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 	}while(valid!=TRUE);
 
 	(*j).referenceno = 10000 + no_journals;
+
 	printf("Your reference number is: %d\n", (*j).referenceno);
 
 	#ifdef DEBUG
