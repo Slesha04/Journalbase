@@ -2,23 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct login
-{
-    char first_name[20];
-    char last_name[20];
-    char username[10];
-    char password[10];
-};
-typedef struct login login_t;
-void log_main_menu(void);
-void log_admin_display(void);
-void log_user_display(void);
-void log_register_member_user(void);
-void log_login_members(void);
-void log_register_admin_user(void);
-void log_login_admins(void);
-void log_scan_password(char password[]);
-
+#include "login.h"
+#include "database.h"
 
 void log_main_menu()
 {
@@ -115,7 +100,7 @@ void log_register_member_user()
 {
     FILE * login_member;
     login_member = fopen("login_member","r+");
-    login_t user_login;
+    log_login_t user_login;
     printf("\nYour First Name\n");
     scanf("%s",user_login.first_name);
     
@@ -140,7 +125,7 @@ void log_login_members()
     char password[20];
     FILE * login_member;
     login_member = fopen("login_member","r+");
-    login_t user_login;
+    log_login_t user_login;
     
     printf("Username : ");
     scanf("%s", username);
@@ -173,7 +158,7 @@ void log_register_admin_user()
 {
     FILE * login_admin;
     login_admin = fopen("login_admin","r+");
-    login_t user_login;
+    log_login_t user_login;
     printf("\nEnter First Name\n");
     scanf("%s",user_login.first_name);
     
@@ -198,7 +183,7 @@ void log_login_admins()
     char password[20];
     FILE * login_admin;
     login_admin = fopen("login_admin","r+");
-    login_t user_login;
+    log_login_t user_login;
     
     printf("Username : ");
     scanf("%s", username);

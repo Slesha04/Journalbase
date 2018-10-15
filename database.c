@@ -19,7 +19,7 @@
 int dat_add(const char* filename, const char* storename)
 {
 	#ifdef DEBUG
-	printf("DEBUG: dat_add: adding file %s.\n", filename);
+	printf("DEBUG: dat_add: adding file %s!\n", filename);
 	#endif
 
 	dat_file_t file; /* file in memory */
