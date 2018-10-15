@@ -5,6 +5,7 @@
 *.txt
 *.zip
 *.txtz
+*.jb
 
 # Object files
 *.o
