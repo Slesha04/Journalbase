@@ -215,10 +215,10 @@ dat_journal_t *dat_journalentry(int no_journals)
 	j = malloc(sizeof(dat_journal_t));
     
 
-	int valid = TRUE, validcheck2 = TRUE, check;
+	int valid = TRUE;/* validcheck2 = TRUE, check;*/
 	int i = 0, m = 0, k=0, n=0, x=0; /*counters/flags*/
 	char keyword_buffer, temp, author_buffer;
-	char d_buffer[BUFFER_LENGTH], m_buffer[BUFFER_LENGTH], y_buffer[BUFFER_LENGTH];
+	
 
     if(j == NULL){
 	    	
@@ -307,46 +307,13 @@ dat_journal_t *dat_journalentry(int no_journals)
 		/*if the input has been previously invalid but skipped the first warning, 
 		the user will now be warned*/
 
-		printf("Enter the Publication Date>\n");
-		
-	
-		scanf(" %s", d_buffer);
-		check = getchar();
-		if(check==10)
-			{
-				valid=FALSE;
-				validcheck2 = FALSE;
-				continue;
-			}
-		else
-			{
-				scanf("%s", m_buffer);
-				check = getchar();
-				if(check==10)
-				{
-					valid=FALSE;
-					validcheck2 = FALSE;
-					continue;
-				}
-				else
-				{
-					scanf("%s", y_buffer);  
-				}
-
-			}
-		(*j).dat_date_dt.date = atoi(d_buffer);
-		(*j).dat_date_dt.month = atoi(m_buffer);
-		(*j).dat_date_dt.year = atoi(y_buffer);
-
-		valid = (dat_checksearchdate((*j).dat_date_dt.date, 
-			(*j).dat_date_dt.month, (*j).dat_date_dt.year));
-
-		if(valid==FALSE||validcheck2==FALSE)
+		(*j).dat_date_dt = dat_scan_date();
+		if(dat_checksearchdate((*j).dat_date_dt.date,(*j).dat_date_dt.month,(*j).dat_date_dt.year)==FALSE)
 		{
-			printf("Invalid date\n");
+			valid = FALSE;
 		}
 
-	}while(valid == FALSE);
+		}while(valid == FALSE);
 
 	do
 	{
@@ -432,48 +399,52 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 		printf("There are no journals to search through\n");
 	}
 
-	else{
-	dat_printsearchoptions();
-	scanf("%s", choice_buffer);
-
-
-	int search_choice = atoi(choice_buffer);
-	/*CHECK MENU INPUT*/
-	if(search_choice == 1)
+	else
 	{
-		printf("Enter the Title you are searching for>\n");
+		dat_printsearchoptions();
+		scanf("%s", choice_buffer);
 
-		scanf(" %[^\n]s", searchtitle);
-		search_success = dat_searchtitle(searchtitle, head);
 
-	}
-	if(search_choice == 2)
-	{
-		printf("Enter an Author>\n");
-		scanf(" %[^\n]s", searchauthor);
-		search_success = dat_searchauthor(searchauthor, head);
-	}
-	if(search_choice == 3)
-	{
-	
-		/*printf("Enter the Publication Date of the Journal>\n");*/
-		searchdate = dat_scan_date();
-		search_success = dat_searchdate(searchdate, head);
-		
+		int search_choice = atoi(choice_buffer);
+		/*CHECK MENU INPUT*/
+		do
+		{
+			if(search_choice == 1)
+			{
+				printf("Enter the Title you are searching for>\n");
 
-	}
-	if(search_choice == 4)
-	{
-		printf("Enter a Keyword>\n");
-		scanf(" %[^\n]s", searchkeyword);
-		search_success = dat_searchtags(searchkeyword, head);
+				scanf(" %[^\n]s", searchtitle);
+				search_success = dat_searchtitle(searchtitle, head);
 
-	}
-	if(search_choice == 5)
-	{
-		search_success = dat_searchall(no_journals, head);
+			}
+			if(search_choice == 2)
+			{
+				printf("Enter an Author>\n");
+				scanf(" %[^\n]s", searchauthor);
+				search_success = dat_searchauthor(searchauthor, head);
+			}
+			if(search_choice == 3)
+			{
+			
+				/*printf("Enter the Publication Date of the Journal>\n");*/
+				searchdate = dat_scan_date();
+				search_success = dat_searchdate(searchdate, head);
+				
 
-	}	
+			}
+			if(search_choice == 4)
+			{
+				printf("Enter a Keyword>\n");
+				scanf(" %[^\n]s", searchkeyword);
+				search_success = dat_searchtags(searchkeyword, head);
+
+			}
+			if(search_choice == 5)
+			{
+				search_success = dat_searchall(no_journals, head);
+
+			}	
+		}while(dat_check_menu_input(search_choice, 1,5)==TRUE);
 	}
 	return search_success;
 }
@@ -1114,7 +1085,8 @@ int dat_load_journal_data(dat_journal_t *head)
 }  
 
 /*******************************************************************************
- * This function checks the menu input from the user
+ * This function scans for the date inputted by the user &checks for a valid
+ * input.
  * If the menu input is <lowest option or >highest option, it will inform the
  * user of an "Invalid choice"
  * inputs: 
@@ -1124,48 +1096,79 @@ int dat_load_journal_data(dat_journal_t *head)
 *******************************************************************************/
 dat_date_t dat_scan_date(void)
 {
-	char d_buffer[BUFFER_LENGTH+1], m_buffer[BUFFER_LENGTH+1], y_buffer[BUFFER_LENGTH+1];
-	dat_date_t publication_date;
-	int valid = TRUE, validcheck2 = TRUE;
-	char check;
 
-	printf("Enter the Publication Date of the Journal>\n");
-	scanf(" %s", d_buffer);
-		check = getchar();
-		if(check==10)
-			{
-				valid=FALSE;
-				validcheck2 = FALSE;
-				
+	int valid = TRUE;
+	int i,m;
+	char whole_date[25];
+	char date_buffer;
+	dat_date_t date;
+
+	do{
+		valid = TRUE;
+		printf("Enter the publication date>\n");
+		m = 0;
+
+		while(TRUE){
+			
+			date_buffer = getchar();
+			if(date_buffer==10)
+			{	
+
+				break;
 			}
 
-		else
+			m++;
+			i=m-1;
+
+			if(i==0||i==1||i==3||i==4||(i>=6&&i<=9))
 			{
-				scanf("%s", m_buffer);
-				check = getchar();
-				if(check==10)
-				{
-					valid=FALSE;
-					validcheck2 = FALSE;
-					
-				}
-				else
-				{
-					scanf("%s", y_buffer);  
-				}
+
+				if(date_buffer<=47||date_buffer>57)
+					{
+						valid = FALSE;
+						
+						/*printf("CHECKx %d failed\n", i);*/
+					}
+				whole_date[i]=date_buffer;	
 
 			}
+			if(i==2||i==5)
+			{
+				if(date_buffer!='/')
+					{
+						valid = FALSE;
+						/*printf("CHECK %d failed\n", i);*/
+					}
+				whole_date[i] = 32;
+			}
+			if(i>9)
+			{
+				valid = FALSE;
+				/*printf("CHECK length failed\n");*/
+			}
 
-		publication_date.date = atoi(d_buffer);
-		publication_date.month = atoi(m_buffer);
-		publication_date.year = atoi(y_buffer);
+			/*printf("letter %d, %c\n", i, date_buffer);*/
 
-if(valid!=TRUE||validcheck2!=TRUE)
-	{
-		printf("Invalid date\n");		
-	}
+		}
+		if(i!=9)
+			{
+				valid = FALSE;
+				/*printf("CHECK length 2failed\n");*/
+			}
+		if(valid == FALSE)
+            {
 
+                printf("Invalid input\n");
+            }
 
+	}while(valid==FALSE);
 
-return publication_date;
+	whole_date[m]=0;
+	sscanf(whole_date, "%d%d%d", &date.date, &date.month, &date.year);
+
+	/*printf("%d %d %d", date.date, date.month, date.year);*/
+
+	return date;
+
 }
+
