@@ -5,10 +5,13 @@
 #include "compression.h"
 #include "encryption.h"
 #include "database.h"
+#include "login.h"
 
 int main(void)
 {
 	printf("YEET...on the street??\n");
+
+	log_main_menu();
 
  	/*database testing*/
     int dat_menu_selection=0; 

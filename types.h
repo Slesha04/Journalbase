@@ -16,6 +16,7 @@
 #define MAX_NUMBER_AUTHORS 10
 #define MAX_LENGTH_ALIAS 25
 #define FILENAME_LENGTH 8
+#define MAX_USER_PASS 20
 
 /******************************************************************************
  * USER STRUCTS
@@ -118,5 +119,13 @@ typedef struct com_bitstream
     int byte; /* current byte offset */
     int bit; /* current bit offset */
 } com_bitstream_t;
+
+typedef struct log_login
+{
+    char first_name[MAX_USER_PASS + 1];
+    char last_name[MAX_USER_PASS + 1];
+    char username[MAX_USER_PASS + 1];
+    char password[MAX_USER_PASS + 1];
+} log_login_t;
 
 #endif
