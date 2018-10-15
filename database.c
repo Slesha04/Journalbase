@@ -230,7 +230,10 @@ dat_journal_t *dat_journalentry(int no_journals)
 		printf("Enter the File Name>\n");
 		scanf(" %[^\n]s", (*j).filename);
 
-		if(dat_add((*j).filename, "stored.txt"))
+		(*j).referenceno = 10000 + no_journals;
+		sprintf((*j).stored_filename, "%d", (*j).referenceno);
+
+		if(dat_add((*j).filename, (*j).stored_filename)==FALSE)
 		{
 			valid = FALSE;
 		}

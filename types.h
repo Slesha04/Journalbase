@@ -79,7 +79,7 @@ typedef struct dat_journal
     /*char filename[MAX_TITLE_LENGTH+1];*/
     dat_date_t dat_date_dt;
     char filename[FILENAME_LENGTH + 1]; /* null terminated */
-
+    char stored_filename[FILENAME_LENGTH + 1]; 
 } dat_journal_t;
 
 /* defines a file loaded in memory, with a pointer to the data, length in 
