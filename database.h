@@ -10,7 +10,7 @@
 #define MAX_NUMBER_AUTHORS 10
 #define FALSE 0
 #define TRUE 1
-#define BUFFER_LENGTH 25
+#define BUFFER_LENGTH 256
 #define MAX_LENGTH_ALIAS 25
 #define DAT_JOURNAL_DB_NAME "journal_info_database"
 #define DB_FN "database_journal"
@@ -18,6 +18,8 @@
 /*void dat_init(void);*/
 
 int dat_add(const char* filename, const char* storename);
+
+int dat_open(const char* storename);
 
 dat_journal_t *dat_journalentry(int no_journals);
 

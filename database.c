@@ -51,6 +51,8 @@ int dat_add(const char* filename, const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -62,6 +64,8 @@ int dat_add(const char* filename, const char* storename)
 	if (bytes_read < file.length)
     {
         printf("Error: dat_add: error reading file %s.\n", filename);
+
+		free(file.data);
 
         return 1;
     }
@@ -81,6 +85,8 @@ int dat_add(const char* filename, const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -88,6 +94,8 @@ int dat_add(const char* filename, const char* storename)
 	bytes_read = fwrite(file.data, sizeof(char), file.length, file_stream);
 
 	fclose(file_stream);
+
+	free(file.data);
 
 	if (bytes_read < file.length)
     {
@@ -119,6 +127,7 @@ int dat_open(const char* storename)
 	dat_file_t file; /* file in memory */
 	FILE* file_stream;
 	size_t bytes_read = 0;
+	int retn_val = 0;
 
 	file_stream = fopen(storename, "r"); /*open file stream */
 
@@ -145,6 +154,8 @@ int dat_open(const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -156,6 +167,8 @@ int dat_open(const char* storename)
 	if (bytes_read < file.length)
     {
         printf("Error: dat_open: error reading file %s.\n", storename);
+
+		free(file.data);
 
         return 1;
     }
@@ -175,6 +188,8 @@ int dat_open(const char* storename)
 
 		fclose(file_stream);
 
+		free(file.data);
+
         return 1;
     }
 
@@ -183,12 +198,28 @@ int dat_open(const char* storename)
 
 	fclose(file_stream);
 
+	free(file.data);
+
 	if (bytes_read < file.length)
     {
         printf("Error: dat_open: error writing to temp file.\n");
 
         return 1;
     }
+
+	/* attempt to open temp file in gvim */
+
+	retn_val = system("gvim temp.txt");
+
+	#ifdef DEBUG
+	printf("DEBUG: Failed to open file in gvim. Using vim instead.\n");
+	#endif
+
+	/* otherwise use vim */
+	if (retn_val != 0)
+	{
+		system("vim temp.txt");
+	}
 
 	return 0;
 }
@@ -422,8 +453,9 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 	if(no_journals == 0)
 	{
 		printf("There are no journals to search through\n");
-	}
 
+		return 0;
+	}
 	else
 	{
 		dat_printsearchoptions();
