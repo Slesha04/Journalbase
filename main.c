@@ -1,3 +1,9 @@
+/*******************************************************************************
+ * main.c: Contains program entry point.
+ * 
+ * Authors: Slesha Mishra, Riza Tolentino, Miles Burchell
+*******************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,11 +42,11 @@ int main(void)
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
 
-	scanf(" %s", buffer);
+	/*scanf(" %s", buffer);
 
 	int hash = hashpassword(buffer);
 
-	printf("Password %s Hash %d", buffer, hash);
+	printf("Password %s Hash %d", buffer, hash);*/
 
     if(head == NULL)
     {

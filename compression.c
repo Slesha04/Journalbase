@@ -1,10 +1,17 @@
+/*******************************************************************************
+ * compression.c: Contains functions to encrypt and decrypt ANSI/ASCII text data
+ * using a combination of Huffman Coding and Run-Length Encoding.
+ * 
+ * Authors: Miles Burchell
+*******************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "compression.h"
 
 /*******************************************************************************
- * strrev
+ * com_strrev
  * This function reverses a string.
  * inputs: 
  *  str: string to reverse (read/write)
@@ -12,14 +19,14 @@
  *  writes reversed string to str
  * Author: Miles Burchell
 *******************************************************************************/
-void strrev(char *str)
+void com_strrev(char *str)
 {
     int i, len = strlen(str);
     char* rev = (char*)calloc(len + 1, sizeof(char));
 
     if (!rev)
     {
-        printf("Error: strrev calloc failed.\n");
+        printf("Error: com_strrev calloc failed.\n");
     }
 
     for (i = 0; i < len; i++)
@@ -30,6 +37,29 @@ void strrev(char *str)
     strcpy(str, rev);
 
     free(rev);
+}
+
+/*******************************************************************************
+ * com_roundup8
+ * This function rounds an integer up to the nearest multiple of 8, nessecary
+ * for creating a memory block for the 64-bit-block encryption functions to work
+ * with.
+ * inputs: 
+ *  input: number to round
+ * outputs:
+ *  returns input, rounded up to a multiple of 8
+ * Author: Miles Burchell
+*******************************************************************************/
+unsigned int com_roundup8(unsigned int input)
+{
+    unsigned int rem = input % 8;
+
+    if (!rem)
+    {
+        return input;
+    }
+
+    return input + (8 - rem);
 }
 
 /*******************************************************************************
@@ -441,7 +471,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
 
         node = heap[i];
         
-        strrev(buffer);
+        com_strrev(buffer);
 
         /* set the bits in node struct */
         node->enc_length = bits;
@@ -561,6 +591,13 @@ com_huffnode_t* com_getnode(char character, com_huffnode_t** tree)
 *******************************************************************************/
 int com_decompressfile(dat_file_t* file)
 {
+    if (!file)
+    {
+        printf("Error: com_decompressfile: Null pointer.\n");
+
+        return 1;
+    }
+
     if (!file->compressed)
     {
         printf("Error: com_decompressfile: Non-compressed file.\n");
@@ -735,6 +772,13 @@ int com_decompressfile(dat_file_t* file)
 *******************************************************************************/
 int com_compressfile(dat_file_t* file)
 {
+    if (!file)
+    {
+        printf("Error: com_compressfile: Null pointer.\n");
+
+        return 1;
+    }
+
     if (file->compressed)
     {
         printf("Error: com_compressfile: Compressed file.\n");
@@ -914,8 +958,13 @@ int com_compressfile(dat_file_t* file)
     /* free original data buffer */
     free(file->data);
 
-    /* attempt realloc our buffer to a sensible size */
-    void* realloc_buffer = realloc(filebuffer, bitwriter.byte + 1);
+    /* set new file length, and compressed attribute */
+    file->length = com_roundup8(bitwriter.byte);
+    file->compressed = TRUE;
+
+    /* attempt realloc our buffer to a sensible size, rounded to 8 bytes
+       (64 bits) so that our comrpession algorithm can do its thing. */
+    void* realloc_buffer = realloc(filebuffer, file->length + 1);
 
     if (realloc_buffer)
     {
@@ -925,10 +974,6 @@ int com_compressfile(dat_file_t* file)
     {
         file->data = filebuffer;
     }
-
-    /* set new file length, and compressed attribute */
-    file->length = bitwriter.byte;
-    file->compressed = TRUE;
 
     /* dispose of the huffman tree */
     com_freetree(tree, treesize);

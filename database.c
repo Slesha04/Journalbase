@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * database.c: Contains functions for adding to, removing from, searching and
+ * reading from the document database.
+ * 
+ * Authors: Riza Tolentino, Miles Burchell
+*******************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
