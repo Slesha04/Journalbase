@@ -127,6 +127,7 @@ int dat_open(const char* storename)
 	dat_file_t file; /* file in memory */
 	FILE* file_stream;
 	size_t bytes_read = 0;
+	int retn_val = 0;
 
 	file_stream = fopen(storename, "r"); /*open file stream */
 
@@ -206,11 +207,19 @@ int dat_open(const char* storename)
         return 1;
     }
 
-	/* open temp file in vim */
+	/* attempt to open temp file in gvim */
 
-	system("vim temp.txt");
+	retn_val = system("gvim temp.txt");
 
-	printf("Returned from opening file.");
+	#ifdef DEBUG
+	printf("DEBUG: Failed to open file in gvim. Using vim instead.\n");
+	#endif
+
+	/* otherwise use vim */
+	if (retn_val != 0)
+	{
+		system("vim temp.txt");
+	}
 
 	return 0;
 }
@@ -490,7 +499,7 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 			}	
 		}while(dat_check_menu_input(search_choice, 1,5)!=TRUE);
 	}
-	return search_success + 10000;
+	return search_success;
 }
 
 /*******************************************************************************

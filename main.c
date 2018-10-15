@@ -82,6 +82,7 @@ int main(void)
 
 		if (ref_id)
 		{
+			ref_id += 10000;
 			sprintf(buffer, "%d.jb", ref_id);
 			dat_open(buffer);
 			remove(buffer);
