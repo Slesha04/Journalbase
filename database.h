@@ -13,8 +13,8 @@
 
 #define MAX_LENGTH_ALIAS 25
 
-#define DAT_JOURNAL_DB_NAME "journal_info_database"
-#define DB_FN "database_journal"
+#define DAT_JOURNAL_DB_NAME "journal_info_database.jb"
+
 
 int dat_add(const char* filename, const char* storename);
 
