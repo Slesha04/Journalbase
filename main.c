@@ -30,7 +30,7 @@ int hashpassword(const char* password)
 
 int main(void)
 {
-	printf("YEET...on the street???\n");
+	printf("YEET...on the street :o\n");
 
 	/*log_main_menu();*/
 
