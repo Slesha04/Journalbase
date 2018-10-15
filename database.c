@@ -1088,175 +1088,97 @@ int dat_check_menu_input(int menuinput, int lowerbound, int higherbound)
     return TRUE;
 }
 
-/*******************************************************************************
- * This function checks the menu input from the user
- * If the menu input is <lowest option or >highest option, it will inform the
- * user of an "Invalid choice"
- * inputs: 
- * user input from the printed menu list
- * outputs:
- * integer -- TRUE(1)/FALSE (0) to indicate whether the program should continue
-*******************************************************************************/
-int dat_save_journal_data(dat_journal_t *head, int no_journals)
+/* returns 0 on success, 1 on failure */
+int dat_save_journal_data(dat_journal_t* head, int no_journals)
 {
-	FILE* journalinfo;
-	dat_journal_t * current = head->next;
-	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "r+");
-	int i, j;
+	#ifdef DEBUG
+	printf("saves: size of struct %lu\n", sizeof(dat_journal_t));
+	#endif
 
+	FILE* fp;
+	int i;
+	dat_journal_t* journal;
 
-	if(journalinfo)
+	fp = fopen(DAT_JOURNAL_DB_NAME, "w+");
+
+	if (!fp)
 	{
-		fprintf(journalinfo, "%d\n", no_journals);
+		printf("Error: dat_save_journal_data: Couldn't open file.\n");
 
-		while(current!=NULL)
-			{ 	if(current->next == NULL)
-				{
-					fprintf(journalinfo, "%d", current->referenceno);
-				}
-				current = current->next;
-			}
-			/*find what the last reference number is, the total number of journals will be referenceno - 10000*/
-		while(current != NULL)
-			{
-			
-				fprintf(journalinfo, "% d %s %s %d %d %d \n", current->referenceno, 
-				current->journaltitle, current->authoralias,
-			 	current->dat_date_dt.date, current->dat_date_dt.month, 
-			 	current->dat_date_dt.year);
-
-				fprintf(journalinfo, " %s %s", current->filename, current->stored_filename);
-				fprintf(journalinfo, " %d %d ", current->numberofkeywords, current-> numberofauthors);
-
-				for(i=0;i<current->numberofkeywords;i++)
-				{
-					fprintf(journalinfo," ");
-					for(j=0;(current->journalkeywords[j+1][i] != ('\0')); j++)
-					{
-						fprintf(journalinfo, "%c", current->journalkeywords[j][i]);
-					}
-					
-				}
-
-
-				for(i=0;i<current->numberofauthors;i++)
-				{
-					fprintf(journalinfo," ");
-					for(j=0;(current->authorname[j+1][i] != ('\0')); j++)
-					{
-						fprintf(journalinfo, "%c", current->authorname[j][i]);
-					}
-					
-				}
-
-		 		current = current->next;
-
-			}
+		return 1;
 	}
-	else
+
+	/* write no of journals */
+	fwrite(&no_journals, sizeof(int), 1, fp);
+
+	journal = head;
+
+	/* write journal data */
+	for (i = 0; i < no_journals; i++)
 	{
-		printf("Error writing journal data.\n");
+		journal = journal->next;
+
+		if (!journal)
+		{
+			printf("Error: dat_save_journal_data: Null pointer.\n");
+			return 1;
+		}
+
+		fwrite(journal, sizeof(dat_journal_t), 1, fp);
 	}
-	fclose(journalinfo);
+
+	fclose(fp);
+
 	return 0;
 }
 
-/*******************************************************************************
- * This function checks the menu input from the user
- * If the menu input is <lowest option or >highest option, it will inform the
- * user of an "Invalid choice"
- * inputs: 
- * user input from the printed menu list
- * outputs:
- * integer -- TRUE(1)/FALSE (0) to indicate whether the program should continue
-*******************************************************************************/
-int dat_load_journal_data(dat_journal_t *head)
+/* returns number of journals read, or 0 on failure, outputs most recent
+   refernce number into lastref */
+int dat_load_journal_data(dat_journal_t* head, int* lastref)
 {
-	FILE* journalinfo;
-	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "r");
-	int no_journals;
-	dat_journal_t * current = head->next;
-	int i, j;
-	int last_referenceno;
+	#ifdef DEBUG
+	printf("loads: size of struct %lu\n", sizeof(dat_journal_t));
+	#endif
 
-	if(journalinfo == NULL)
+	FILE* fp;
+	int i, no_journals, max_ref = 0;
+	dat_journal_t * journal, * current;
+
+	fp = fopen(DAT_JOURNAL_DB_NAME, "r+");
+
+	if (!fp)
 	{
-		printf("Read error\n");
-		return 0;
-	}
-	if(journalinfo)
-	{
-		fscanf(journalinfo, "%d", &no_journals);
-
-			while(current!=NULL)
-			{ 	if(current->next == NULL)
-				{
-					fscanf(journalinfo, "%d", &last_referenceno);
-				}
-				current = current->next;
-			}
-		while(current != NULL)
-			{
-			
-				fscanf(journalinfo, "%d %s %s %d %d %d \n", &current->referenceno, 
-				current->journaltitle, current->authoralias,
-			 	&current->dat_date_dt.date, &current->dat_date_dt.month, 
-			 	&current->dat_date_dt.year);
-
-			 	fscanf(journalinfo, " %s %s", current->filename, current->stored_filename);
-				fscanf(journalinfo, " %d %d ", &current->numberofkeywords, &current-> numberofauthors);
-
-				for(i=0;i<current->numberofkeywords;i++)
-				{
-					fscanf(journalinfo, " ");
-					for(j=0;(current->journalkeywords[j+1][i] != ('\0')); j++)
-					{
-						fscanf(journalinfo, "%c", &current->journalkeywords[j][i]);
-					}
-					
-				}
-
-				i=0, j=0;
-				for(i=0;i<current->numberofauthors;i++)
-				{
-					fscanf(journalinfo," ");
-					for(j=0;(current->authorname[j+1][i] != ('\0')); j++)
-					{
-						fscanf(journalinfo, "%c", &current->authorname[j][i]);
-					}
-					
-				}
-
-		 		current = current->next;
-
-			}
-			fclose(journalinfo);
-	}
-	return last_referenceno-10000; /*return total number of journals in linked ever added*/
-
-}
-
-int dat_return_numberofjournals()
-{
-	FILE* journalinfo;
-	journalinfo = fopen(DAT_JOURNAL_DB_NAME, "r");
-	int no_journals;
-
-	if(journalinfo == NULL)
-	{
-		printf("Read error\n");
 		return 0;
 	}
 
-	if(journalinfo)
+	/* read no of journals */
+	fread(&no_journals, sizeof(int), 1, fp);
+
+	current = head;
+	current->prev = 0;
+
+	/* read each journal and add it to the list */
+	for (i = 0; i < no_journals; i++)
 	{
-		fscanf(journalinfo, "%d", &no_journals);
+		journal = (dat_journal_t*)calloc(sizeof(dat_journal_t), 1);
+
+		fread(journal, sizeof(dat_journal_t), 1, fp);
+
+		if (journal->referenceno > max_ref)
+		{
+			max_ref = journal->referenceno;
+		}
+
+		journal->prev = current;
+		current->next = journal;
+		current = journal;
 	}
 
-	fclose(journalinfo);
+	current->next = 0;
 
-	return no_journals;	
+	*lastref = max_ref;
 
+	return no_journals;
 }
 
 /*******************************************************************************

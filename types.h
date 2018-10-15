@@ -7,7 +7,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-/*#define DEBUG*/
+#define DEBUG
 
 #define FALSE 0
 #define TRUE 1
@@ -15,15 +15,27 @@
 #define BITS_IN_BYTE 8
 #define BYTES_IN_BLOCK 8
 
-#define MAX_TITLE_LENGTH 256
+/*#define MAX_TITLE_LENGTH 256
 #define MAX_KEYWORD_LENGTH 256
 #define MAX_AUTHOR_NAME 256
 #define MAX_NUMBER_KEYWORDS 5
 #define MAX_NUMBER_AUTHORS 10
-#define MAX_LENGTH_ALIAS 25
+#define MAX_LENGTH_ALIAS 25*/
 #define FILENAME_LENGTH 256
 
 #define MAX_USER_PASS 20
+
+#define MAX_TITLE_LENGTH 256
+#define MAX_KEYWORD_LENGTH 32
+#define MAX_AUTHOR_NAME 50
+#define MAX_NUMBER_KEYWORDS 5
+#define MAX_NUMBER_AUTHORS 10
+
+#define BUFFER_LENGTH 256
+
+#define MAX_LENGTH_ALIAS 25
+
+#define DAT_JOURNAL_DB_NAME "database.jb"
 
 /******************************************************************************
  * ENCRYPTION STRUCTS

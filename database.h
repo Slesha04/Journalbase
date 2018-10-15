@@ -3,19 +3,6 @@
 
 #include "types.h"
 
-#define MAX_TITLE_LENGTH 256
-#define MAX_KEYWORD_LENGTH 256
-#define MAX_AUTHOR_NAME 256
-#define MAX_NUMBER_KEYWORDS 5
-#define MAX_NUMBER_AUTHORS 10
-
-#define BUFFER_LENGTH 256
-
-#define MAX_LENGTH_ALIAS 25
-
-#define DAT_JOURNAL_DB_NAME "journal_info_database"
-#define DB_FN "database_journal"
-
 int dat_add(const char* filename, const char* storename);
 
 int dat_open(const char* storename);
@@ -52,9 +39,7 @@ int dat_check_menu_input(int menuinpu, int lowerbound, int higherbound);
 
 int dat_save_journal_data(dat_journal_t *head, int no_journals);
 
-int dat_load_journal_data(dat_journal_t *head);
-
-int dat_return_numberofjournals();
+int dat_load_journal_data(dat_journal_t* head, int* lastref);
 
 dat_date_t dat_scan_date(void);
 

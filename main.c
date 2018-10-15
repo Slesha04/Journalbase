@@ -30,14 +30,14 @@ int hashpassword(const char* password)
 
 int main(void)
 {
-	printf("YEET...on the street :o\n");
+	printf("journal size %lu\n", sizeof(dat_journal_t));
 
 	/*log_main_menu();*/
 
  	/*database testing*/
     int dat_menu_selection=0; 
     char buffer[BUFFER_LENGTH+1];
-    int total_journal_count = 0, relative_count =0;
+    int no_journals, current_refid;
     dat_journal_t *j;
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
@@ -53,11 +53,13 @@ int main(void)
 	   	printf("No memory allocated\n");	
 	}
 
-	total_journal_count = dat_load_journal_data(head);
-	relative_count = dat_return_numberofjournals(); 
+	no_journals = dat_load_journal_data(head, &current_refid);
+
+	#ifdef DEBUG
+	printf("DEBUG: Loaded %d journals from database.\n", no_journals);
+	#endif
 
 	dat_journal_t *current = head;
-	head->next = NULL;
 
 	do{
 
@@ -73,22 +75,20 @@ int main(void)
 
 	if(dat_menu_selection==1)
 	{
-		total_journal_count++;
-		relative_count++;
+		no_journals++;
 
-		j= dat_journalentry(total_journal_count);
+		j= dat_journalentry(current_refid);
 		current->next=malloc(sizeof(dat_journal_t));
 		current->next= j;
 		current->next->next = NULL;
 
-		dat_save_journal_data(head, relative_count);
+		dat_save_journal_data(head, no_journals);
 		current = current->next;
-
 	}
 
 	if(dat_menu_selection == 2)
 	{
-		if(relative_count==0)
+		if(no_journals==0)
 		{
 			printf("There are no journals\n");
 		}
@@ -99,21 +99,21 @@ int main(void)
 
 			dat_print_delete_menu();
 			scanf("%d", &dat_delete_menu_selection);
-			delete_key = dat_delete_sort(dat_delete_menu_selection, head, total_journal_count);
+			delete_key = dat_delete_sort(dat_delete_menu_selection, head, current_refid);
 			if(delete_key != 0)
 			{
-				relative_count = dat_delete_journal(&head, delete_key, relative_count);
+				no_journals = dat_delete_journal(&head, delete_key, no_journals);
 			}
 		}
 	}
 
 	if(dat_menu_selection == 3)
 	{
-		int ref_id = dat_searchjournals(head, relative_count);
+		int ref_id = dat_searchjournals(head, no_journals);
 
 		if (ref_id)
 		{
-			ref_id += 10000;
+			/*ref_id += 10001;*/
 			sprintf(buffer, "%d.jb", ref_id);
 			dat_open(buffer);
 			remove("temp.txt");
