@@ -1,11 +1,20 @@
 /*******************************************************************************
  * encryption.c: Contains functions for encrypting and decrypting data via a 
+
  * modified XTEA algorithm.
+
+ * modified XTEA algorithm
+
  * 
  * Algorithm Modifications:
  *  - 64-bit Sum
  *  - 256-bit Key
+
  *  - 96 Rounds
+
+ *  - 128 Rounds - Due to key size increase
+ *  - Slightly modified bit shifts - For obscurity
+
  *  - Modulus operation replacing bitwise AND for key iteration
  * 
  * Authors: Miles Burchell
@@ -31,18 +40,23 @@ void enc_encrypt(enc_block_t* data)
                           ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8 };
     __uint32_t temp[2];
 
+    /* split block into low and high 32-bit DWORDS */
     temp[0] = (*data >> 32) & 0xFFFFFFFF;
     temp[1] = *data & 0xFFFFFFFF;
 
+    /* perform encryption */
     for (i = 0; i < (ENC_NUM_ROUNDS / 2); i++)
     {
-        temp[0] += ((temp[1] << 4 ^ temp[1] >> 5) + temp[1]) ^ 
+        temp[0] += ((temp[1] << 5 ^ temp[1] >> 6) + temp[1]) ^ 
             (sum + key[ sum % 8 ]);
 
+        /* summation occuring between odd rounds helps protect from related-key
+           attacks */
         sum += ENC_MAGIC;
 
-        temp[1] += ((temp[0] << 4 ^ temp[0] >> 5) + temp[0]) ^ 
-            (sum + key[ (sum >> 11) % 8 ]);
+        temp[1] += ((temp[0] << 5 ^ temp[0] >> 6) + temp[0]) ^ 
+            (sum + key[ (sum >> 10) % 8 ]);
+
     }
 
     *data = (enc_block_t)temp[0] << 32 | temp[1];
@@ -65,6 +79,7 @@ void enc_decrypt(enc_block_t* data)
                           ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8 };
     __uint32_t temp[2];
 
+/*
     temp[0] = (*data >> 32) & 0xFFFFFFFF;
     temp[1] = *data & 0xFFFFFFFF;
 
@@ -76,6 +91,23 @@ void enc_decrypt(enc_block_t* data)
         sum -= ENC_MAGIC;
 
         temp[0] -= ((temp[1] << 4 ^ temp[1] >> 5) + temp[1]) ^ 
+*/
+    /* split block into low and high 32-bit DWORDS */
+    temp[0] = (*data >> 32) & 0xFFFFFFFF;
+    temp[1] = *data & 0xFFFFFFFF;
+
+    /* perform decryption */
+    for (i = 0; i < (ENC_NUM_ROUNDS / 2); i++)
+    {
+        temp[1] -= ((temp[0] << 5 ^ temp[0] >> 6) + temp[0]) ^ 
+            (sum + key[ (sum >> 10) % 8 ]);
+        
+        /* summation occuring between odd rounds helps protect from related-key
+           attacks */
+        sum -= ENC_MAGIC;
+
+        temp[0] -= ((temp[1] << 5 ^ temp[1] >> 6) + temp[1]) ^ 
+
             (sum + key[ sum % 8 ]);
     }
 
