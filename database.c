@@ -230,7 +230,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 		printf("Enter the File Name>\n");
 		scanf(" %[^\n]s", (*j).filename);
 
-		if(dat_add((*j).filename, "stored.txt")==FALSE)
+		if(dat_add((*j).filename, "stored.txt"))
 		{
 			valid = FALSE;
 		}
@@ -302,24 +302,29 @@ dat_journal_t *dat_journalentry(int no_journals)
 
 	}while(valid!=TRUE);
 	
-		do{
+		while(1){
 		/*if the input has been previously invalid but skipped the first warning, 
 		the user will now be warned*/
-
-		(*j).dat_date_dt = dat_scan_date();
-		if(dat_checksearchdate((*j).dat_date_dt.date,(*j).dat_date_dt.month,(*j).dat_date_dt.year)==FALSE)
-		{
-			valid = FALSE;
+			valid = TRUE;
+			(*j).dat_date_dt = dat_scan_date();
+			if(dat_checksearchdate((*j).dat_date_dt.date,(*j).dat_date_dt.month,(*j).dat_date_dt.year)==TRUE)
+			{
+				break;
+			}
 		}
-
-		}while(valid == FALSE);
+		
+	#ifdef DEBUG
+	char keyword_list[MAX_KEYWORD_LENGTH+1];
+	#endif
 
 	do
-	{
+	{	
+		i=0;
+		valid = TRUE;
 		printf("The maximum number of keywords is 5\n");
 		printf("Enter keywords, separated by a space>\n");
 		
-		getchar();
+		
 		do
 		{ if(keyword_buffer==10)
 			{
@@ -329,11 +334,14 @@ dat_journal_t *dat_journalentry(int no_journals)
 			}
 
 			keyword_buffer = getchar();
-			/*char keyword_list[MAX_KEYWORD_LENGTH+1];*/
+
 			m++;
 			n++;
 
-			/*keyword_list[n-1]=keyword_buffer;*/
+			#ifdef DEBUG
+			keyword_list[n-1]=keyword_buffer;
+			#endif
+
 			if(keyword_buffer != (32||44))
 			{
 				(*j).journalkeywords[m-1][i] = keyword_buffer;
@@ -345,16 +353,21 @@ dat_journal_t *dat_journalentry(int no_journals)
 				m=0;
 				i++;
 			}
+			#ifdef DEBUG
 			if(keyword_buffer==10)
 			{
-				/*keyword_list[n-1] = 0;*/
+				keyword_list[n-1] = 0;
 			}
+			#endif
 			
 			temp = keyword_buffer;
 		}while(keyword_buffer != 10);
 
-		(*j).numberofkeywords = i + 1;
-
+		(*j).numberofkeywords = i + 2;
+		#ifdef DEBUG
+		printf("i is: %d\n", i);
+		#endif
+		
 		if(i>MAX_NUMBER_KEYWORDS)
 		{
 			valid = FALSE;
@@ -367,8 +380,10 @@ dat_journal_t *dat_journalentry(int no_journals)
 	printf("Your reference number is: %d\n", (*j).referenceno);
 
 	#ifdef DEBUG
-	printf("DEBUG: dat_journalentry: journal added with fields:\nTitle: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n Keywords: %s\n Reference Number: %d\n", (*j).journaltitle, (*j).authoralias, &(*j).dat_date_dt.date, 
-			&(*j).dat_date_dt.month, &(*j).dat_date_dt.year, keyword_list,(*j).referenceno);
+	printf("DEBUG: dat_journalentry: journal added with fields:\nTitle: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n Keywords: %s\n Reference Number: %d\n", 
+			(*j).journaltitle, (*j).authoralias, (*j).dat_date_dt.date, 
+			(*j).dat_date_dt.month, (*j).dat_date_dt.year, keyword_list,(*j).referenceno);
+	
 	#endif
 
 return j;
@@ -443,7 +458,7 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 				search_success = dat_searchall(no_journals, head);
 
 			}	
-		}while(dat_check_menu_input(search_choice, 1,5)==TRUE);
+		}while(dat_check_menu_input(search_choice, 1,5)!=TRUE);
 	}
 	return search_success;
 }
