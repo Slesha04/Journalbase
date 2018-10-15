@@ -1,6 +1,10 @@
 # Prerequisites
 *.d
 
+# Weird shit
+*.swp
+*.db
+
 # Data files the program uses
 *.txt
 *.zip
