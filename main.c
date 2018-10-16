@@ -74,12 +74,13 @@ void show_journal_menu(int admin)
 		no_journals++;
 
 		j = dat_journalentry(no_journals, &current_refid);
-		current->next=malloc(sizeof(dat_journal_t));
-		current->next= j;
-		current->next->next = NULL;
+		current->next = j;
+		j->prev = current;
+		
+		current = current->next;
+		current->next = 0;
 
 		dat_save_journal_data(head, no_journals);
-		current = current->next;
 	}
 
 	if(dat_menu_selection == 2)
@@ -94,7 +95,7 @@ void show_journal_menu(int admin)
 			int delete_key;
 
 			dat_print_delete_menu();
-			
+
 			scanf("%d", &dat_delete_menu_selection);
 
 			delete_key = dat_delete_sort(dat_delete_menu_selection, head, current_refid);

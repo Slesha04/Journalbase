@@ -893,28 +893,24 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 	
 	if(dat_check_menu_input(deletemenuchoice,1,2)==TRUE)
 	{
-
-	if(deletemenuchoice == 1) /*ASCII*/
-	{
-		printf("Enter the reference number>\n");
-		scanf("%d", &delete_ref_key);
-
-	}
-	if(deletemenuchoice == 2)
-	{
-
-		
-		/*scanf("%d", &searchchoice);*/
-		if(dat_searchjournals( head, no_journals)==TRUE)
+		if(deletemenuchoice == 1)
 		{
-		printf("Enter the reference number or enter 0 to cancel>\n");
-		scanf("%d", &delete_ref_key);
+			printf("Enter the reference number>\n");
+			scanf("%d", &delete_ref_key);
 		}
-		else
+
+		if(deletemenuchoice == 2)
 		{
-			return 0;
+			if(dat_searchjournals(head, no_journals))
+			{
+				printf("Enter the reference number or enter 0 to cancel>\n");
+				scanf("%d", &delete_ref_key);
+			}
+			else
+			{
+				return 0;
+			}
 		}
-	}
 	}
 
 	return delete_ref_key;
@@ -956,14 +952,20 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 		return no_journals;
 	}
 
-	prev->next = temp->next;
+	if (temp->next)
+	{
+		prev->next = temp->next;
+		temp->next->prev = prev;
+	}
+	else
+	{
+		prev->next = 0;
+	}
+	
 	free(temp);
-	#ifdef DEBUG
-		if(temp==NULL)
-		{
-			printf("DEBUG: file %d was removed", key);
-		}
-	#endif
+	
+	printf("Journal %d was deleted from the database.\n", key);
+
 	return no_journals - 1;
 }
 
