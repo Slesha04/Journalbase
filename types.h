@@ -31,6 +31,10 @@
 
 #define DAT_JOURNAL_DB_NAME "database.jb"
 
+#define ADMIN_DEFAULT_PASSWORD "admin"
+#define ADMIN_USER_ID 1
+#define LOG_MAX_USERS 64
+
 /******************************************************************************
  * ENCRYPTION STRUCTS
  *****************************************************************************/
@@ -113,17 +117,5 @@ typedef struct com_bitstream
     int byte; /* current byte offset */
     int bit; /* current bit offset */
 } com_bitstream_t;
-
-/******************************************************************************
- * LOGIN STRUCTS
- *****************************************************************************/
-
-typedef struct log_login
-{
-    char first_name[MAX_USER_PASS + 1];
-    char last_name[MAX_USER_PASS + 1];
-    char username[MAX_USER_PASS + 1];
-    char password[MAX_USER_PASS + 1];
-} log_login_t;
 
 #endif

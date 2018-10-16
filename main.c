@@ -11,22 +11,6 @@
 #include "compression.h"
 #include "encryption.h"
 #include "database.h"
-#include "login.h"
-
-/* by miles */
-int hashpassword(const char* password)
-{
-	int i, hash = 10000;
-	size_t len = strlen(password);
-
-	for (i = 0; i < len; i++)
-	{
-		hash += password[i] ^ 123 << i;
-		hash -= password[i] % 12;
-	}
-
-	return hash;
-}
 
 void show_journal_menu(int admin)
 {
@@ -138,8 +122,6 @@ void show_journal_menu(int admin)
 int main(void)
 {
 	show_journal_menu(0);
-
-	/*log_main_menu();*/
-
+	
  	return 0;
 }
