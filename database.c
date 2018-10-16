@@ -231,6 +231,14 @@ int dat_open(const char* storename)
 	/* otherwise use vim */
 	if (retn_val != 0)
 	{
+		printf("\n\nSince GVim is not available in your envrionment, the ");
+		printf("article will be opened in this terminal window. Type ':qa!'");
+		printf(" when you are ready to exit the article viewer.\n\n");
+		printf("Press enter to continue...\n");
+
+		getchar();
+		getchar();
+
 		system("vim temp.txt");
 	}
 
@@ -244,12 +252,13 @@ int dat_open(const char* storename)
  * author(s), date, keyword(s)
  * inputs: 
  *  no_journals: number of journals
+ *  lastref: last assigned journal reference number (read/write)
  * outputs: 
  *  returns pointer to the newly create journal entry (dat_journal_t), or NULL
  *  if failed.
  * Author: Riza Tolentino
 *******************************************************************************/
-dat_journal_t *dat_journalentry(int no_journals)
+dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 {
 	#ifdef DEBUG
 	printf("DEBUG: dat_journalentry: adding journal no. %d.\n", no_journals);
@@ -269,13 +278,22 @@ dat_journal_t *dat_journalentry(int no_journals)
 		return NULL;
 	}
 
+	if (*lastref)
+	{
+		(*lastref)++;
+	}
+	else
+	{
+		*lastref = 10001;
+	}
+
+	(*j).referenceno = *lastref;
+
 	printf("Enter the Journal information>\n");
 
 	do{
 		printf("Enter the File Name>\n");
 		scanf(" %[^\n]s", (*j).filename);
-
-		(*j).referenceno = 10000 + no_journals;
 
 		sprintf((*j).stored_filename, "%d.jb", (*j).referenceno);
 
@@ -292,7 +310,7 @@ dat_journal_t *dat_journalentry(int no_journals)
 		{
 			valid = TRUE;
 		}
-	} while(valid==FALSE);
+	} while (valid==FALSE);
 
 	do
 	{
@@ -436,8 +454,6 @@ dat_journal_t *dat_journalentry(int no_journals)
 		}
 
 	} while (!valid);
-
-	(*j).referenceno = 10000 + no_journals;
 
 	printf("Your reference number is: %d\n", (*j).referenceno);
 
@@ -765,7 +781,7 @@ int dat_searchall(int no_journals, dat_journal_t *head)
 			while(current != NULL)
 			{
 			
-				printf("%-8.5d %-9.8s %-10.10s %02d %02d %04d \n", current->referenceno, 
+				printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current->referenceno, 
 				current->journaltitle, current->authoralias,
 			 	current->dat_date_dt.date, current->dat_date_dt.month, 
 			 	current->dat_date_dt.year);

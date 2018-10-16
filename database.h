@@ -14,7 +14,7 @@ int dat_add(const char* filename, const char* storename);
 
 int dat_open(const char* storename);
 
-dat_journal_t *dat_journalentry(int no_journals);
+dat_journal_t *dat_journalentry(int no_journals, int* lastref);
 
 int dat_searchjournals(dat_journal_t *head, int no_journals);
 
