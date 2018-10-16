@@ -15,9 +15,10 @@
 void show_journal_menu(int admin)
 {
 	/*database testing*/
-    int dat_menu_selection=0; 
+    
     char buffer[BUFFER_LENGTH+1];
     int no_journals, current_refid;
+
     dat_journal_t *j;
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
@@ -41,82 +42,91 @@ void show_journal_menu(int admin)
 
 	dat_journal_t *current = head;
 
-	do{
-
-	dat_print_menu();
-	scanf("%s", buffer);
-
-	int dat_menu_selection = atoi(buffer);
-
-	if(!dat_check_menu_input(dat_menu_selection, 1, 5))
+	while(1)
 	{
-		continue;
-	}
 
-	if(dat_menu_selection==1)
-	{
-		no_journals++;
+		dat_print_menu();
+		scanf("%s", buffer);
+		int dat_menu_selection = atoi(buffer); /*changes into numeral*/
 
-		j = dat_journalentry(no_journals, &current_refid);
-		current->next = j;
-		j->prev = current;
-		
-		current = current->next;
-		current->next = 0;
-
-		dat_save_journal_data(head, no_journals);
-	}
-
-	if(dat_menu_selection == 2)
-	{
-		if(no_journals==0)
+		/*Checks for valid input*/
+		if(!dat_check_menu_input(dat_menu_selection, 1, 5))
 		{
-			printf("There are no journals.\n");
+			continue;
 		}
-		else
-		{
-			int dat_delete_menu_selection = 0;
-			int delete_key;
 
-			dat_print_delete_menu();
+		/*Add a journal*/
+		if(dat_menu_selection==1)
+		{	
+			/*increment number of journals*/
+			no_journals++;
 
-			scanf("%d", &dat_delete_menu_selection);
-
-			delete_key = dat_delete_sort(dat_delete_menu_selection, head, current_refid);
+			/**/
+			j = dat_journalentry(no_journals, &current_refid);
+			current->next = j;
+			j->prev = current;
 			
-			if(delete_key != 0)
-			{
-				no_journals = dat_delete_journal(&head, delete_key, no_journals);
-			}
+			current = current->next;
+			current->next = 0;
 
 			dat_save_journal_data(head, no_journals);
 		}
-	}
 
-	if(dat_menu_selection == 3)
-	{
-		dat_searchjournals(head, no_journals);
-	}
+		/*Delete journals*/
+		if(dat_menu_selection == 2)
+		{
+			if(no_journals==0)
+			{
+				printf("There are no journals.\n");
+			}
+			else
+			{
+				int dat_delete_menu_selection = 0; 
+				int delete_key;
 
-	if (dat_menu_selection == 4)
-	{
-		int ref_id;
+				dat_print_delete_menu();
 
-		printf("Enter journal reference no.> ");
-		scanf("%d", &ref_id);
+				scanf("%d", &dat_delete_menu_selection);
 
-		sprintf(buffer, "%d.jb", ref_id);
+				delete_key = dat_delete_sort(dat_delete_menu_selection, head, current_refid);
+				
+				if(delete_key != 0)
+				{	
+					/*a ref_id was provided to delete the journal, a journal is deleted, 
+					count should decriment -- if none deleted, count will not change*/
+					no_journals = dat_delete_journal(&head, delete_key, no_journals);
+				}
 
-		dat_open(buffer);
-		remove("temp.txt");
-	}
+				dat_save_journal_data(head, no_journals);
+			}
+		}
 
-	if(dat_menu_selection == 5)
-	{
-		break;
-	}
+		/*search through journals*/
+		if(dat_menu_selection == 3)
+		{
+			dat_searchjournals(head, no_journals);
+		}
 
-	} while (dat_menu_selection !=5);
+		/*view journals to open*/
+		if (dat_menu_selection == 4)
+		{
+			int ref_id;
+
+			printf("Enter journal reference no.> ");
+			scanf("%d", &ref_id);
+
+			sprintf(buffer, "%d.jb", ref_id);
+
+			dat_open(buffer);
+			remove("temp.txt");
+		}
+		 /*End program*/
+		if(dat_menu_selection == 5)
+		{
+			break;
+		}
+
+	} 
 }
 
 int main(void)
@@ -125,3 +135,4 @@ int main(void)
 	
  	return 0;
 }
+

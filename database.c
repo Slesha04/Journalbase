@@ -268,8 +268,8 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 	j = malloc(sizeof(dat_journal_t));
 
 	int valid = TRUE;
-	int i = 0, m = 0, k=0, n=0, x=0; /*counters/flags*/
-	char keyword_buffer, temp, author_buffer;
+	int i = 0, n=0; /*counters/flags*/
+	char keyword_buffer, temp2, temp, author_buffer;
 	
     if (!j)
 	{	
@@ -291,6 +291,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
 	printf("Enter the Journal information>\n");
 
+	/*Prompt user to enter the file they would like to upload*/
 	do{
 		printf("Enter the File Name>\n");
 		scanf(" %[^\n]s", (*j).filename);
@@ -314,79 +315,102 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
 	do
 	{
-		printf("Enter the Journal Title>\n");
+		printf("Enter the Journal Title, no special characters>\n");
 		scanf(" %[^\n]s", (*j).journaltitle);
 
 		if (dat_checkword((*j).journaltitle)==FALSE)
 		{
 			printf("Invalid Title. Please try again.\n");
+			#ifdef DEBUG
+				printf("Error: The title must only have alphabet characters.");
+			#endif
 		}
 
 	} while (dat_checkword((*j).journaltitle)==FALSE);
 
 	do
 	{
+		i = 0;
+		n = 0;
+		
 		printf("Enter the Author's Name, if multiple authors, separate by");
 		printf(" a comma and space>\n");
 		getchar();
 
-		do
+		while(1)
 		{ 
-			if(author_buffer==10)
+			valid = TRUE;
+			if(author_buffer== ENTER)
 			{
-				n = 0;
-				k = 0;
+				/*reset counters at entry of a new line*/
+				(*j).authorname[i][n-1] = 0;
+
+				break;
 			}
 
 			author_buffer = getchar();
-			k++;
+			n++;
 
-			if(author_buffer != (32||44))
+			if(author_buffer != SPACE && author_buffer != COMMA)
 			{
-				(*j).authorname[k-1][n] = author_buffer;
-				if(n==0 && author_buffer!=10)
-				{
-					(*j).authoralias[k-1] = author_buffer;
-				}
+				(*j).authorname[i][n-1] = author_buffer;
+
 			}
-			if(author_buffer == 32 && (temp == 44||m==0))
+
+			if(author_buffer == SPACE && (temp == COMMA))
 			{
-				(*j).authorname[k-1][n] = 0;
-				k=0;
-				x ++;
-				n++;
+				(*j).authorname[i][n-1] = 0;
+				n = 0;
+				i ++; /*next author begins*/
 			}
 			
-			temp = author_buffer;
+			temp = author_buffer; 
 
-		}while(author_buffer != 10);
-
-		(*j).numberofauthors = n + 1;
-		if((*j).numberofauthors>1)
-		{
-			strcat((*j).authoralias, "et al.");
 		}
 
-		if((*j).numberofauthors>MAX_NUMBER_AUTHORS)
+		(*j).numberofauthors = i + 1; /* since i begins at 0*/
+
+		#ifdef DEBUG
+		printf("Number of authors is: %d\n", (*j).numberofauthors);
+		#endif
+
+		/*if there is more than 1 author, the first author, et al.
+			will be displayed */
+		strcpy((*j).authoralias, (*j).authorname[0]);
+
+		if((*j).numberofauthors>1)
+		{
+			
+
+			strcat((*j).authoralias, " et al.");
+		}
+
+		if((*j).numberofauthors > MAX_NUMBER_AUTHORS)
 		{
 			valid = FALSE;
 			printf("You have entered too many authors\n");
 		}
+
 	} while (valid!=TRUE);
 	
+	/*Enters the publication date*/
 	while(1)
 	{
-	/*if the input has been previously invalid but skipped the first warning, 
-	the user will now be warned*/
-		valid = TRUE;
+	
 		(*j).dat_date_dt = dat_scan_date();
-		if(dat_checksearchdate((*j).dat_date_dt.date,(*j).dat_date_dt.month,(*j).dat_date_dt.year)==TRUE)
+		if(dat_checksearchdate((*j).dat_date_dt.date,(*j).dat_date_dt.month,
+			(*j).dat_date_dt.year)==TRUE)
 		{
+			/* The user can move on if the date is correct.*/
 			break;
 		}
 		else
 		{
 			printf("Invalid date.\n");
+			#ifdef DEBUG
+				printf("ERROR: The date does not"
+				" lie within the correct bounds\n");
+			#endif
 		}
 	}
 		
@@ -394,41 +418,42 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 	char keyword_list[MAX_KEYWORD_LENGTH+1];
 	#endif
 
+	/*User inputs keywords or presses enter for none.*/
 	do
 	{	
 		i = 0;
-		valid = TRUE;
+		n = 0;
 
 		printf("The maximum number of keywords is 5\n");
 		printf("Enter keywords, separated by a space>\n");
 		
-		do
+		while(1)
 		{
+			valid = TRUE;
 			if (keyword_buffer == 10)
 			{
-				i = 0; /*word count*/
-				m = 0; /*letter count*/
-				n = 0;
+				(*j).journalkeywords[i][n-1] = 0;
+				break;
+
 			}
 
 			keyword_buffer = getchar();
-
-			m++;
 			n++;
 
 			#ifdef DEBUG
+			/*compiles the whole list of keywords*/
 			keyword_list[n-1]=keyword_buffer;
 			#endif
 
-			if(keyword_buffer != ' ' && keyword_buffer != ',')
+			if(keyword_buffer != SPACE && keyword_buffer != COMMA)
 			{
-				(*j).journalkeywords[m-1][i] = keyword_buffer;
+				(*j).journalkeywords[i][n-1] = keyword_buffer;
 			}
 
-			if (keyword_buffer == ' ' && (temp == ',' || m == 0))
+			if (keyword_buffer == SPACE && (temp2 == COMMA))
 			{
-				(*j).journalkeywords[m-1][i] = 0;
-				m=0;
+				(*j).journalkeywords[i][n-1] = 0; /*null terminate*/
+				n = 0;
 				i++;
 			}
 
@@ -439,33 +464,40 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 			}
 			#endif
 			
-			temp = keyword_buffer;
-		}while(keyword_buffer != 10);
+			temp2 = keyword_buffer;
+
+		}
 
 		(*j).numberofkeywords = i + 1;
+
 		#ifdef DEBUG
 		printf("Number of keywords is: %d\n", (*j).numberofkeywords);
 		#endif
 		
-		if((*j).numberofkeywords>MAX_NUMBER_KEYWORDS)
+		if((*j).numberofkeywords > MAX_NUMBER_KEYWORDS)
 		{
 			valid = FALSE;
 			printf("You have entered too many keywords.\n");
 		}
 
-	} while (!valid);
+	}while(valid!=TRUE);
 
+	/*The user will see their username*/
 	printf("Your reference number is: %d\n", (*j).referenceno);
 
 	#ifdef DEBUG
-	printf("DEBUG: dat_journalentry: journal added with fields:\nTitle: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n Keywords: %s\n Reference Number: %d\n", 
+	printf("DEBUG: dat_journalentry: journal added with fields:\n"
+		" Title: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n" 
+		" Keywords: %s\n Reference Number: %d\n", 
 			(*j).journaltitle, (*j).authoralias, (*j).dat_date_dt.date, 
-			(*j).dat_date_dt.month, (*j).dat_date_dt.year, keyword_list,(*j).referenceno);
+			(*j).dat_date_dt.month, (*j).dat_date_dt.year, keyword_list,
+			(*j).referenceno);
 	#endif
 
 return j;
 
 }
+
 
 /*******************************************************************************
  * This function will compare the search term to titles within the linked list
@@ -534,80 +566,61 @@ int dat_searchtitle(char search_term[], dat_journal_t *head)
 *******************************************************************************/
 int dat_searchauthor(char search_term[], dat_journal_t *head)
 {
-	int n = 0;
 	int i = 0;
-	int s  = 0;
-	int j = 0;
-	int length0;
-	int no_authors;
-
-	dat_journal_t * current = head->next;
+	int m = 0; /*node counter*/
+	dat_journal_t * current = head -> next;
 	dat_journal_t * current_printer = head->next;
 
-    while(current!=NULL)
-	{			
-		length0=strlen(search_term);
-		no_authors= current->numberofauthors;
-
-		for(n=0; n<no_authors; n++, i=0)
+	while(current!=NULL)
+	{	
+		for(m=0; m < current->numberofauthors; m++)
 		{
-			for(j=0; j<length0; j++)
-			{
-				if(search_term[j] == current->authorname[j][n])
-				{
-					i++;
-				}
-			}
-			
-			if(i==length0)
-			{
-				s++; /*indicates if the length of the entered word matches the keyword*/
-			}
-		}
 
-		current = current->next;
-
-	}
+			printf("The search term is: %s and the author is: %s\n"
+				, search_term, current->authorname[m]);
+			if(strcmp(search_term, current->authorname[m]) == 0)
+			{
+				
+				i++;	
+			}
+		}	
+			current = current->next;
 		
-	if (s == 0)
+	}
+
+	if(i==0)
 	{
 		printf("No matches were found\n");
+		return FALSE;
 	}
 
-	if (s > 0)
+	if(i>0)
 	{
 		printf("Ref. no. Title           Author          Date Published\n");
-		printf("-------- --------------- --------------- --------------\n");		
+		printf("-------- --------------- --------------- --------------\n");	
 	}
 
-	while (current_printer)
+	m = 0;
+	
+	while(current_printer!=NULL)
 	{
-		no_authors = current_printer->numberofkeywords;
-
-		for (n = 0; n<no_authors; n++, i = 0)
+		for(m=0; m < current_printer->numberofauthors; m++)
 		{
-			for (j = 0; j<length0; j++)
+			if(strcmp(search_term, current_printer->authorname[m]) == 0)
 			{
-				if (search_term[j] == current_printer->authorname[j][n])
-				{
-					i++;	
-				}
-			}
-
-			if(i == length0)
-			{	
 				printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current_printer->referenceno, 
 				current_printer->journaltitle, current_printer->authoralias,
-			 	current_printer->dat_date_dt.date, current_printer->dat_date_dt.month, 
+		 		current_printer->dat_date_dt.date, current_printer->dat_date_dt.month, 
 				current_printer->dat_date_dt.year);
 			}
+		
 		}
-			
 		current_printer = current_printer->next;
 	}
 
-	return 0;
-}	
+	return TRUE;
+}
+
 
 /*******************************************************************************
  * This function will compare the searched keyword to titles within the 
@@ -622,85 +635,64 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
 *******************************************************************************/
 int dat_searchtags(char searchkeyword[], dat_journal_t *head)
 {
-	int n = 0;
 	int i = 0;
-	int s  = 0;
-	int j = 0;
-	int length1;
-	int no_keywords;
+	int m = 0; /*node counter*/
+	dat_journal_t * current = head -> next;
+	dat_journal_t * current_printer = head->next;
 
- dat_journal_t * current = head->next;
- dat_journal_t * current_printer = head->next;
-
-    while(current!=NULL)
-		{	
+	while(current!=NULL)
+	{	
+		for(m=0; m < current->numberofkeywords; m++)
+		{
 			
-			length1=strlen(searchkeyword);
-			no_keywords = current->numberofkeywords;
+			printf("The search term is: %s and the keywords are: %s\n"
+				, searchkeyword, current->journalkeywords[m]);
+			
 
-			for(n=0; n<no_keywords; n++, i=0)
+			if(strcmp(searchkeyword, current->journalkeywords[m]) == 0)
 			{
-				for(j=0; j<length1; j++)
-				{
-					if(searchkeyword[j] == current->journalkeywords[j][n])
-					{
-						i++;
-
-					}
-
-				}
-
-				if(i==length1)
-				{
-					s++; /*indicates if the length of the entered word matches the keyword*/
-				}
+				
+				i++;	
 			}
-
+		}	
 			current = current->next;
-		}
-		if(s==0)
-		{
-			printf("No matches were found\n");
-			return FALSE;
-		}
-		if(s>0)
-		{
-			printf("Ref. no. Title           Author          Date Published\n");
-			printf("-------- --------------- --------------- --------------\n");			
-		}
+		
+	}
+
+	if(i==0)
+	{
+		printf("No matches were found\n");
+		return FALSE;
+	}
+
+	if(i>0)
+	{
+		printf("Ref. no. Title           Author          Date Published\n");
+		printf("-------- --------------- --------------- --------------\n");	
+	}
+
+	m = 0;
 	
-	 /*dat_journal_t * current = head->next;*/
-
-		while(current_printer!=NULL)
+	while(current_printer!=NULL)
+	{
+		for(m=0; m < current_printer->numberofkeywords; m++)
 		{
-			no_keywords = current_printer->numberofkeywords;
-
-			for(n=0; n<no_keywords; n++, i=0)
+			if(strcmp(searchkeyword, current_printer->journalkeywords[m]) == 0)
 			{
-				for(j=0; j<length1; j++)
-				{
-					if(searchkeyword[j] == current_printer->journalkeywords[j][n])
-					{
-						i++;	
-					}
-
-				}
-
-				if(i == length1)
-				{	
-					printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current_printer->referenceno, 
-					current_printer->journaltitle, current_printer->authoralias,
-				 	current_printer->dat_date_dt.date, current_printer->dat_date_dt.month, 
-				 	current_printer->dat_date_dt.year);
-				}
+				printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current_printer->referenceno, 
+				current_printer->journaltitle, current_printer->authoralias,
+		 		current_printer->dat_date_dt.date, current_printer->dat_date_dt.month, 
+				current_printer->dat_date_dt.year);
 			}
-			
-			current_printer = current_printer->next;
+		
 		}
+		current_printer = current_printer->next;
+	}
 
 	return TRUE;
-
 }
+
+
 
 /*******************************************************************************
  * This function will compare the search date to publication dates
@@ -819,10 +811,11 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 	}
 	else
 	{
-		dat_printsearchoptions();
 
 		while (1)
 		{
+			dat_printsearchoptions();
+
 			scanf("%s", choice_buffer);
 			int search_choice = atoi(choice_buffer);
 		
@@ -889,6 +882,9 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 {
 
 	int delete_ref_key = 0;
+	char buffer[BUFFER_LENGTH];
+	char validation[] = "Y";
+	char validation2[] = "y";
 	
 	
 	if(dat_check_menu_input(deletemenuchoice,1,2)==TRUE)
@@ -905,15 +901,32 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 			{
 				printf("Enter the reference number or enter 0 to cancel>\n");
 				scanf("%d", &delete_ref_key);
+
 			}
 			else
 			{
 				return 0;
 			}
 		}
+
+		printf("Are you sure you would like to continue? [Y/n]\n");
+		scanf(" %[^\n]s", buffer);
+		if(strcmp(buffer, validation))
+		{
+			return delete_ref_key;
+		}
+		else if(strcmp(buffer, validation2))
+		{
+			return delete_ref_key;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
-	return delete_ref_key;
+	return 0;
+	
 }
 
 /*******************************************************************************
@@ -1097,7 +1110,7 @@ int dat_check_menu_input(int menuinput, int lowerbound, int higherbound)
     if(menuinput < lowerbound || menuinput > higherbound)
     {
         printf("Invalid selection. Please enter a number between");
-		printf("%d and %d.\n", lowerbound, higherbound);
+		printf(" %d and %d.\n", lowerbound, higherbound);
         return FALSE;
     }
 
@@ -1229,7 +1242,7 @@ dat_date_t dat_scan_date(void)
 {
 	int valid = TRUE;
 	int i, m;
-	char whole_date[25];
+	char whole_date[256];
 	char date_buffer;
 	dat_date_t date;
 
@@ -1253,10 +1266,10 @@ dat_date_t dat_scan_date(void)
 			m++;
 			i=m-1;
 
-			/* Numeric input */
+			/* Numeric input for date */
 			if (i == 0 || i == 1 || i == 3 || i == 4 || (i >= 6 && i<= 9))
 			{
-
+				/*checks if numeral*/
 				if (date_buffer < '0' || date_buffer > '9')
 				{
 					valid = FALSE;
@@ -1265,7 +1278,7 @@ dat_date_t dat_scan_date(void)
 				whole_date[i]=date_buffer;	
 			}
 
-			/* Separators */
+			/* Separators '/'*/
 			if (i == 2 || i == 5)
 			{
 				if (date_buffer != '/')
@@ -1275,7 +1288,7 @@ dat_date_t dat_scan_date(void)
 
 				whole_date[i] = 32;
 			}
-
+			 /*Check length of date input*/
 			if(i > 9)
 			{
 				valid = FALSE;
@@ -1290,9 +1303,9 @@ dat_date_t dat_scan_date(void)
         {
             printf("Invalid input\n");
         }
-	}while(valid==FALSE);
+	}while(valid==FALSE); /*repeat until a valid date*/
 
-	whole_date[m] = '\0';
+	whole_date[m] = '\0'; /*Null terminated*/
 
 	sscanf(whole_date, "%d%d%d", &date.date, &date.month, &date.year);
 

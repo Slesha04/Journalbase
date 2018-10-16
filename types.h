@@ -7,7 +7,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#define DEBUG
+/*#define DEBUG*/
 
 #define FALSE 0
 #define TRUE 1
@@ -27,7 +27,7 @@
 
 #define BUFFER_LENGTH 256
 
-#define MAX_LENGTH_ALIAS 25
+#define MAX_LENGTH_ALIAS 50
 
 #define DAT_JOURNAL_DB_NAME "database.jb"
 
@@ -68,9 +68,10 @@ typedef struct dat_journal
     struct dat_journal *next;
 
     char journaltitle[MAX_TITLE_LENGTH+1];
-    char authorname[MAX_AUTHOR_NAME+1][MAX_NUMBER_AUTHORS];
-    char journalkeywords[MAX_KEYWORD_LENGTH+1][MAX_NUMBER_KEYWORDS];
-    char authoralias[MAX_LENGTH_ALIAS];
+    char authorname[MAX_NUMBER_AUTHORS][MAX_AUTHOR_NAME+1];
+    char journalkeywords[MAX_NUMBER_KEYWORDS][MAX_KEYWORD_LENGTH+1];
+    char authoralias[MAX_LENGTH_ALIAS+1];
+
     int numberofkeywords;
     int numberofauthors;
     int referenceno;

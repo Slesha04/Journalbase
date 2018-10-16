@@ -9,6 +9,9 @@
 #define MONTH_MAX 12
 #define YEAR_MIN 1
 #define YEAR_MAX 2100
+#define ENTER 10
+#define SPACE 32
+#define COMMA 44
 
 int dat_add(const char* filename, const char* storename);
 
