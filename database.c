@@ -284,6 +284,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 	}
 	else
 	{
+		/*first reference*/
 		*lastref = 10001;
 	}
 
@@ -509,7 +510,7 @@ return j;
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchtitle(char search_term[], dat_journal_t *head)
+int dat_searchtitle(char search_term[], const dat_journal_t *head)
 {
 	int i = 0;
 	dat_journal_t * current = head->next;
@@ -575,9 +576,11 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
 	{	
 		for(m=0; m < current->numberofauthors; m++)
 		{
-
+			#ifdef DEBUG
 			printf("The search term is: %s and the author is: %s\n"
 				, search_term, current->authorname[m]);
+			#endif
+			
 			if(strcmp(search_term, current->authorname[m]) == 0)
 			{
 				
@@ -633,7 +636,7 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchtags(char searchkeyword[], dat_journal_t *head)
+int dat_searchtags(const char searchkeyword[], dat_journal_t *head)
 {
 	int i = 0;
 	int m = 0; /*node counter*/
@@ -644,10 +647,10 @@ int dat_searchtags(char searchkeyword[], dat_journal_t *head)
 	{	
 		for(m=0; m < current->numberofkeywords; m++)
 		{
-			
+			#ifdef DEBUG
 			printf("The search term is: %s and the keywords are: %s\n"
 				, searchkeyword, current->journalkeywords[m]);
-			
+			#endif
 
 			if(strcmp(searchkeyword, current->journalkeywords[m]) == 0)
 			{
@@ -762,7 +765,7 @@ int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
  * printed list of all journals. Will return 1 for a successful print.
  * Author: Riza Tolentino
 *******************************************************************************/	
-int dat_searchall(int no_journals, dat_journal_t *head)
+int dat_searchall(int no_journals,  dat_journal_t *head)
 {
 	dat_journal_t * current = head->next;
 		
@@ -911,11 +914,11 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 
 		printf("Are you sure you would like to continue? [Y/n]\n");
 		scanf(" %[^\n]s", buffer);
-		if(strcmp(buffer, validation))
+		if(strcmp(buffer, validation)==0)
 		{
 			return delete_ref_key;
 		}
-		else if(strcmp(buffer, validation2))
+		else if(strcmp(buffer, validation2)==0)
 		{
 			return delete_ref_key;
 		}
@@ -1064,7 +1067,7 @@ int dat_checksearchdate(int date, int month, int year)
  *  return TRUE if valid input, FALSE if not
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_checkword(char word[])
+int dat_checkword(const char word[])
 {	int length;
 	int i;
 	int invalid = 0;
@@ -1133,7 +1136,6 @@ int dat_save_journal_data(dat_journal_t* head, int no_journals)
 	#endif
 
 	FILE* fp;
-	int i;
 	dat_journal_t* journal;
 
 	fp = fopen(DAT_JOURNAL_DB_NAME, "w+");
@@ -1148,12 +1150,11 @@ int dat_save_journal_data(dat_journal_t* head, int no_journals)
 	/* write no of journals */
 	fwrite(&no_journals, sizeof(int), 1, fp);
 
-	journal = head;
+	journal = head -> next;
 
 	/* write journal data */
-	for (i = 0; i < no_journals; i++)
+	while( journal != NULL)
 	{
-		journal = journal->next;
 
 		if (!journal)
 		{
@@ -1162,6 +1163,7 @@ int dat_save_journal_data(dat_journal_t* head, int no_journals)
 		}
 
 		fwrite(journal, sizeof(dat_journal_t), 1, fp);
+		journal = journal->next;
 	}
 
 	fclose(fp);

@@ -58,6 +58,7 @@ void show_journal_menu(int admin)
 		/*Add a journal*/
 		if(dat_menu_selection==1)
 		{	
+			int add_success;
 			/*increment number of journals*/
 			no_journals++;
 
@@ -69,7 +70,12 @@ void show_journal_menu(int admin)
 			current = current->next;
 			current->next = 0;
 
-			dat_save_journal_data(head, no_journals);
+			add_success = dat_save_journal_data(head, no_journals);
+			if(add_success)
+			{
+				no_journals --; /*the journal was not added to the database*/
+				current = 0;
+			}
 		}
 
 		/*Delete journals*/

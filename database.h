@@ -35,7 +35,7 @@ void dat_printsearchoptions(void);
 
 int dat_checksearchdate(int date, int month, int year);
 
-int dat_checkword(char word[]);
+int dat_checkword(const char word[]);
 
 int dat_check_menu_input(int menuinpu, int lowerbound, int higherbound);
 
