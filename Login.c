@@ -13,7 +13,8 @@
 
 void log_main_menu()
 {
-    int choice = 0 ;
+    int choice = 0;
+    
     printf("\n\nWelcome to JournalBase \nThe Safest Journal Storage!!\n\n");
     printf("Please select the type of user you are to log in\n");
     printf("1. Admin\n2. Member/Regular User\n\n");
@@ -55,7 +56,7 @@ void log_admin_display()
         log_login_admins();
         
     }
-    else if (choice ==2)
+    else if (choice == 2)
     {
         log_register_admin_user();
         count_admin++;
@@ -220,5 +221,3 @@ void log_scan_password(char password[])
     system("stty echo");
     printf("%s\n", password);
 }
-
-

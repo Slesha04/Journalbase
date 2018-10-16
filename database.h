@@ -3,6 +3,13 @@
 
 #include "types.h"
 
+#define DAY_MIN 1
+#define DAY_MAX 31
+#define MONTH_MIN 1
+#define MONTH_MAX 12
+#define YEAR_MIN 1
+#define YEAR_MAX 2100
+
 int dat_add(const char* filename, const char* storename);
 
 int dat_open(const char* storename);
@@ -10,14 +17,6 @@ int dat_open(const char* storename);
 dat_journal_t *dat_journalentry(int no_journals);
 
 int dat_searchjournals(dat_journal_t *head, int no_journals);
-
-int dat_searchtitle(char search_term[], dat_journal_t *head);
-
-int dat_searchauthor(char search_term[], dat_journal_t *head);
-
-int dat_searchtags(char search_term[], dat_journal_t *head);
-
-int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head);
 
 int dat_searchall(int no_journals, dat_journal_t *head);
 

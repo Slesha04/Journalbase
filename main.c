@@ -28,13 +28,9 @@ int hashpassword(const char* password)
 	return hash;
 }
 
-int main(void)
+void show_journal_menu(int admin)
 {
-	printf("journal size %lu\n", sizeof(dat_journal_t));
-
-	/*log_main_menu();*/
-
- 	/*database testing*/
+	/*database testing*/
     int dat_menu_selection=0; 
     char buffer[BUFFER_LENGTH+1];
     int no_journals, current_refid;
@@ -50,7 +46,7 @@ int main(void)
 
     if(head == NULL)
     {
-	   	printf("No memory allocated\n");	
+	   	printf("ERROR: Out of memory.\n");	
 	}
 
 	no_journals = dat_load_journal_data(head, &current_refid);
@@ -68,7 +64,7 @@ int main(void)
 
 	int dat_menu_selection = atoi(buffer);
 
-	if(dat_check_menu_input(dat_menu_selection, 1, 4)==FALSE)
+	if(!dat_check_menu_input(dat_menu_selection, 1, 5))
 	{
 		continue;
 	}
@@ -90,7 +86,7 @@ int main(void)
 	{
 		if(no_journals==0)
 		{
-			printf("There are no journals\n");
+			printf("There are no journals.\n");
 		}
 		else
 		{
@@ -109,23 +105,35 @@ int main(void)
 
 	if(dat_menu_selection == 3)
 	{
-		int ref_id = dat_searchjournals(head, no_journals);
-
-		if (ref_id)
-		{
-			/*ref_id += 10001;*/
-			sprintf(buffer, "%d.jb", ref_id);
-			dat_open(buffer);
-			remove("temp.txt");
-		}
+		dat_searchjournals(head, no_journals);
 	}
 
-	if(dat_menu_selection == 4)
+	if (dat_menu_selection == 4)
+	{
+		int ref_id;
+
+		printf("Enter journal reference no.> ");
+		scanf("%d", &ref_id);
+
+		sprintf(buffer, "%d.jb", ref_id);
+
+		dat_open(buffer);
+		remove("temp.txt");
+	}
+
+	if(dat_menu_selection == 5)
 	{
 		break;
 	}
 
-	}while(dat_menu_selection !=4);
+	} while (dat_menu_selection !=5);
+}
 
-    return 0;
+int main(void)
+{
+	show_journal_menu(0);
+	
+	/*log_main_menu();*/
+
+ 	return 0;
 }
