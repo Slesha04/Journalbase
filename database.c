@@ -273,7 +273,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     j = malloc(sizeof(dat_journal_t));
 
     int valid = TRUE;
-    int i = 0, n=0; /*counters/flags*/
+    int i = 0, n=0, m=0; /*counters/flags*/
     char keyword_buffer, temp2, temp, author_buffer;
 
     if (!j)
@@ -349,7 +349,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             valid = TRUE;
             author_buffer = getchar();
             n++;
-            
+
             if(author_buffer== '\n')
             {
                 /*reset counters at entry of a new line*/
@@ -424,23 +424,36 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     }
 
 #ifdef DEBUG
-    char keyword_list[MAX_KEYWORD_LENGTH+1];
+    char keyword_list[BUFFER_LENGTH+1];
 #endif
 
     /*User inputs keywords or presses enter for none.*/
     do
     {
-        i = 0;
-        n = 0;
+        i = 0; /*keyword counter*/
+        n = 0; /*Char counter for each word*/
 
         printf("The maximum number of keywords is 5\n");
         printf("Enter keywords, separated by a space>\n");
 
         while(1)
         {
-            valid = TRUE;
+        	/*indicates if the user has inputted too many words*/
+            valid = TRUE; 
             keyword_buffer = getchar();
-            n++;
+            n++; /*next char*/
+            m++; /*counter for keywords list*/
+
+#ifdef DEBUG
+        /*compiles the whole list of keywords*/
+        keyword_list[m-1]= keyword_buffer;
+
+        if(keyword_buffer=='\n')
+        {
+            keyword_list[m-1] = 0;
+        }
+        
+#endif
 
             if (keyword_buffer == 10)
             {
@@ -450,11 +463,6 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
             }
 
-
-#ifdef DEBUG
-            /*compiles the whole list of keywords*/
-            keyword_list[n-1]=keyword_buffer;
-#endif
 
             if(keyword_buffer != ' ' && keyword_buffer != ',')
             {
@@ -469,12 +477,6 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
                 i++;
             }
 
-#ifdef DEBUG
-            if(keyword_buffer==10)
-            {
-                keyword_list[n-1] = 0;
-            }
-#endif
 
             temp2 = keyword_buffer;
 
