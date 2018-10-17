@@ -146,7 +146,7 @@ void show_read_menu()
 }
 
 /*******************************************************************************
- * show_read_menu
+ * show_edit_menu
  * This function will print options and take user input to perform searching,
  * viewing, adding and deleteing functions in editing mode.
  * inputs:
@@ -240,13 +240,17 @@ void show_edit_menu()
 
                 scanf("%d", &dat_delete_menu_selection);
 
-                delete_key = dat_delete_sort(dat_delete_menu_selection, head, current_refid);
+                delete_key = dat_delete_sort(dat_delete_menu_selection, 
+                	head, current_refid);
 
                 if(delete_key != 0)
                 {
-                    /*a ref_id was provided to delete the journal, a journal is deleted,
-                    count should decriment -- if none deleted, count will not change*/
-                    no_journals = dat_delete_journal(&head, delete_key, no_journals);
+                    /*a ref_id was provided to 
+                    delete the journal, a journal is deleted,
+                    count should decriment -- if none deleted, 
+                    count will not change*/
+                    no_journals = dat_delete_journal(&head, 
+                    	delete_key, no_journals);
                 }
 
                 dat_save_journal_data(head, no_journals);
@@ -302,3 +306,4 @@ int main (int argc, char *argv[])
 
     return 0;
 }
+
