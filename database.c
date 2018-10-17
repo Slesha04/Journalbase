@@ -329,14 +329,15 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     } while (dat_checkword((*j).journaltitle)==FALSE);
 
+    getchar();
     do
     {
+    	(*j).numberofauthors = 0;
         i = 0;
         n = 0;
 
         printf("Enter the Author's Name, if multiple authors, separate by");
         printf(" a comma and space>\n");
-        getchar();
 
         while(1)
         {
@@ -352,12 +353,14 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             author_buffer = getchar();
             n++;
 
+
             if(author_buffer != ' ' && author_buffer != ',')
             {
                 (*j).authorname[i][n-1] = author_buffer;
 
             }
 
+            /*checks if listing*/
             if(author_buffer == ' ' && (temp == ','))
             {
                 (*j).authorname[i][n-1] = 0;
