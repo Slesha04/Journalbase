@@ -16,9 +16,9 @@
  * Authors: Miles Burchell
 *******************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h> /* printf */
+#include <stdlib.h> /* calloc, realloc, free */
+#include <string.h> /* memset, strcpy, strlen */
 
 #include "compression.h"
 

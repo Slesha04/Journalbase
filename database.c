@@ -5,9 +5,10 @@
  * Authors: Riza Tolentino, Miles Burchell
 *******************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h> /* printf, sprintf, scanf, sscanf, fopen, ftell, close, 
+                      fread, fwrite, fclose, remove, getchar */
+#include <stdlib.h> /* malloc, calloc, free, atoi */
+#include <string.h> /* strcpy, strcat, strcmp, strlen */
 
 #include "database.h"
 #include "compression.h"
