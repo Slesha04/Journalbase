@@ -178,6 +178,7 @@ int dat_open(const char* storename)
     bytes_read = fread(&file.real_length, sizeof(unsigned int), 1,
                        file_stream);
     /* read all data */
+
     bytes_read = fread(file.data, sizeof(char), file.length, file_stream);
 
     fclose(file_stream);
@@ -329,6 +330,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             printf("Invalid Title. Please try again.\n");
 #ifdef DEBUG
             printf("Error: The title must only have alphabet characters.");
+
 #endif
         }
 
@@ -877,6 +879,7 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
             /*Search by Date*/
             if(search_choice == 3)
             {
+            	getchar();
                 searchdate = dat_scan_date();
                 search_success = dat_searchdate(searchdate, head);
                 return search_success;
