@@ -347,6 +347,9 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         while(1)
         {
             valid = TRUE;
+            author_buffer = getchar();
+            n++;
+            
             if(author_buffer== '\n')
             {
                 /*reset counters at entry of a new line*/
@@ -354,9 +357,6 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
                 break;
             }
-
-            author_buffer = getchar();
-            n++;
 
 
             if(author_buffer != ' ' && author_buffer != ',')
@@ -439,15 +439,17 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         while(1)
         {
             valid = TRUE;
+            keyword_buffer = getchar();
+            n++;
+
             if (keyword_buffer == 10)
             {
+            	/*Null terminate the last word*/
                 (*j).journalkeywords[i][n-1] = 0;
                 break;
 
             }
 
-            keyword_buffer = getchar();
-            n++;
 
 #ifdef DEBUG
             /*compiles the whole list of keywords*/
@@ -461,7 +463,8 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
             if (keyword_buffer == ' ' && (temp2 == ','))
             {
-                (*j).journalkeywords[i][n-1] = 0; /*null terminate*/
+            	/*null terminate*/
+                (*j).journalkeywords[i][n-1] = 0; 
                 n = 0;
                 i++;
             }
