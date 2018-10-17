@@ -554,9 +554,12 @@ int dat_searchtitle(char search_term[], const dat_journal_t *head)
     {
         if(strcmp(search_term, current_printer->journaltitle) == 0)
         {
-            printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current_printer->referenceno,
-                   current_printer->journaltitle, current_printer->authoralias,
-                   current_printer->dat_date_dt.date, current_printer->dat_date_dt.month,
+            printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", 
+            	current_printer->referenceno,
+                   current_printer->journaltitle, 
+                   current_printer->authoralias,
+                   current_printer->dat_date_dt.date, 
+                   current_printer->dat_date_dt.month,
                    current_printer->dat_date_dt.year);
         }
 
@@ -623,9 +626,12 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
         {
             if(strcmp(search_term, current_printer->authorname[m]) == 0)
             {
-                printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current_printer->referenceno,
-                       current_printer->journaltitle, current_printer->authoralias,
-                       current_printer->dat_date_dt.date, current_printer->dat_date_dt.month,
+                printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", 
+                	current_printer->referenceno,
+                       current_printer->journaltitle, 
+                       current_printer->authoralias,
+                       current_printer->dat_date_dt.date, 
+                       current_printer->dat_date_dt.month,
                        current_printer->dat_date_dt.year);
             }
 
@@ -694,9 +700,12 @@ int dat_searchtags(const char searchkeyword[], dat_journal_t *head)
         {
             if(strcmp(searchkeyword, current_printer->journalkeywords[m]) == 0)
             {
-                printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current_printer->referenceno,
-                       current_printer->journaltitle, current_printer->authoralias,
-                       current_printer->dat_date_dt.date, current_printer->dat_date_dt.month,
+                printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", 
+                		current_printer->referenceno,
+                       current_printer->journaltitle, 
+                       current_printer->authoralias,
+                       current_printer->dat_date_dt.date, 
+                       current_printer->dat_date_dt.month,
                        current_printer->dat_date_dt.year);
             }
 
@@ -728,7 +737,8 @@ int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
 
     while(current!=NULL)
     {
-        if(search_date_term.date==current->dat_date_dt.date && search_date_term.month == current->dat_date_dt.month
+        if(search_date_term.date==current->dat_date_dt.date && 
+        	search_date_term.month == current->dat_date_dt.month
                 && search_date_term.year == current->dat_date_dt.year)
         {
 
@@ -751,13 +761,17 @@ int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
     /*dat_journal_t * current = head->next;*/
     while(current_printer!=NULL)
     {
-        if(search_date_term.date==current_printer->dat_date_dt.date && search_date_term.month == current_printer->dat_date_dt.month
+        if(search_date_term.date==current_printer->dat_date_dt.date && 
+        	search_date_term.month == current_printer->dat_date_dt.month
                 && search_date_term.year == current_printer->dat_date_dt.year)
         {
 
-            printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current_printer->referenceno,
-                   current_printer->journaltitle, current_printer->authoralias,
-                   current_printer->dat_date_dt.date, current_printer->dat_date_dt.month,
+            printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", 
+            	current_printer->referenceno,
+                   current_printer->journaltitle, 
+                   current_printer->authoralias,
+                   current_printer->dat_date_dt.date, 
+                   current_printer->dat_date_dt.month,
                    current_printer->dat_date_dt.year);
 
         }
@@ -788,7 +802,8 @@ int dat_search_all(int no_journals,  dat_journal_t *head)
     while(current != NULL)
     {
 
-        printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", current->referenceno,
+        printf("%-8.5d %-15.14s %-15.15s %02d %02d %04d \n", 
+        	current->referenceno,
                current->journaltitle, current->authoralias,
                current->dat_date_dt.date, current->dat_date_dt.month,
                current->dat_date_dt.year);
@@ -829,16 +844,19 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
 
         while (1)
         {
+        	/*print the menu for journal search*/
             dat_print_search_options();
 
             scanf("%s", choice_buffer);
             int search_choice = atoi(choice_buffer);
 
+            /*Check for a valid menu*/
             if(dat_check_menu_input(search_choice, 1, 5)==FALSE)
             {
                 continue;
             }
 
+            /*Search by Title*/
             if(search_choice == 1)
             {
                 printf("Enter the Title you are searching for>\n");
@@ -848,6 +866,7 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
                 return search_success;
 
             }
+            /*Search by Author*/
             if(search_choice == 2)
             {
                 printf("Enter an Author>\n");
@@ -855,15 +874,15 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
                 search_success = dat_searchauthor(searchauthor, head);
                 return search_success;
             }
+            /*Search by Date*/
             if(search_choice == 3)
             {
-
-                /*printf("Enter the Publication Date of the Journal>\n");*/
                 searchdate = dat_scan_date();
                 search_success = dat_searchdate(searchdate, head);
                 return search_success;
 
             }
+             /*Search by Keyword*/
             if(search_choice == 4)
             {
                 printf("Enter a Keyword>\n");
@@ -871,6 +890,7 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
                 search_success = dat_searchtags(searchkeyword, head);
                 return search_success;
             }
+            /*Search all journals*/
             if(search_choice == 5)
             {
                 search_success = dat_search_all(no_journals, head);
@@ -1081,7 +1101,9 @@ int dat_check_word(const char word[])
 
     for(i=0; i<length; i++)
     {
-        if(((word[i]<65 && word[i] != 32) || ((word[i]>90) && (word[i]<97)) || word[i]>122))
+    	/*ASCII chars*/
+        if(((word[i]<65 && word[i] != 32) || ((word[i]>90) && (word[i]<97)) 
+        	|| word[i]>122))
         {
             invalid ++;
         }
@@ -1133,7 +1155,9 @@ int dat_check_menu_input(int menuinput, int lowerbound, int higherbound)
 int dat_save_journal_data(dat_journal_t* head, int no_journals)
 {
 #ifdef DEBUG
+
     printf("DEBUG: Saving database to disk\n");
+
 #endif
 
     FILE* fp;
@@ -1236,10 +1260,10 @@ int dat_load_journal_data(dat_journal_t* head, int* lastref)
 *******************************************************************************/
 dat_date_t dat_scan_date(void)
 {
-    int valid = TRUE;
-    int i, m;
-    char whole_date[256];
-    char date_buffer;
+    int valid = TRUE; /*Checks if valid input*/
+    int i, m; /*counters for the chars*/
+    char whole_date[256]; /*array for the whole date*/
+    char date_buffer; 
     dat_date_t date;
 
     do
@@ -1295,6 +1319,7 @@ dat_date_t dat_scan_date(void)
             valid = FALSE;
         }
 
+        /*error was detected while scanning*/
         if(valid == FALSE)
         {
             printf("Invalid input\n");
