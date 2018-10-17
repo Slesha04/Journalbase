@@ -4,9 +4,7 @@
 #include "types.h"
 
 /* number of encryption rounds */
-
 #define ENC_NUM_ROUNDS 128
-
 
 /* sum iterator */
 #define ENC_MAGIC 0x9E3779B99E3779B9
@@ -27,7 +25,7 @@
  * pointer to dat_file_t structure
  * outputs: 
  * return 0 if successful, 1 if failed.
- * Author: Tegh
+ * Author: Miles Burchell
 *******************************************************************************/
 int enc_decryptfile(dat_file_t* file);
 
@@ -37,7 +35,7 @@ int enc_decryptfile(dat_file_t* file);
  * pointer to dat_file_t structure
  * outputs: 
  * return 0 if successful, 1 if failed.
- * Author: Tegh 
+ * Author: Miles Burchell
 *******************************************************************************/
 int enc_encryptfile(dat_file_t* file);
 

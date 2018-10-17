@@ -1,7 +1,7 @@
 /*******************************************************************************
  * compression.c: Contains functions to encrypt and decrypt ANSI/ASCII text data
  * using a combination of Huffman Coding and Run-Length Encoding.
- * 
+ *
  * Authors: Miles Burchell
 *******************************************************************************/
 
@@ -13,7 +13,7 @@
 /*******************************************************************************
  * com_strrev
  * This function reverses a string.
- * inputs: 
+ * inputs:
  *  str: string to reverse (read/write)
  * outputs:
  *  writes reversed string to str
@@ -44,7 +44,7 @@ void com_strrev(char *str)
  * This function rounds an integer up to the nearest multiple of 8, nessecary
  * for creating a memory block for the 64-bit-block encryption functions to work
  * with.
- * inputs: 
+ * inputs:
  *  input: number to round
  * outputs:
  *  returns input, rounded up to a multiple of 8
@@ -65,7 +65,7 @@ unsigned int com_roundup8(unsigned int input)
 /*******************************************************************************
  * com_bitstream_init
  * This function initialises a bit stream
- * inputs: 
+ * inputs:
  *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
  *  data: pointer to data for the stream to read from/write to.
@@ -83,7 +83,7 @@ void com_bitstream_init(com_bitstream_t* stream, const void* data)
 /*******************************************************************************
  * com_bitstream_rewind
  * This function rewinds a bit stream by one bit.
- * inputs: 
+ * inputs:
  *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
  * outputs:
@@ -110,7 +110,7 @@ void com_bitstream_rewind(com_bitstream_t* stream)
 /*******************************************************************************
  * com_bitstream_skip
  * This function skips a bit stream to the start of the next byte.
- * inputs: 
+ * inputs:
  *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
  * outputs:
@@ -140,11 +140,11 @@ int com_bitstream_skip(com_bitstream_t* stream)
 /*******************************************************************************
  * com_bitstream_writebit
  * This function writes an individual bit to a data stream
- * inputs: 
+ * inputs:
  *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
  *  bit: value to write (1 or 0)
- * outputs: 
+ * outputs:
  *  none
  * Author: Miles Burchell
 *******************************************************************************/
@@ -185,10 +185,10 @@ void com_bitstream_writebit(com_bitstream_t* stream, char bit)
 /*******************************************************************************
  * com_bitstream_readbit
  * This function reads an individual bit from a data stream
- * inputs: 
- *  stream: pointer to com_bitstream_t structure describing data stream 
+ * inputs:
+ *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
- * outputs: 
+ * outputs:
  *  returns the value of the bit (1 or 0), or -1 if the function fails.
  * Author: Miles Burchell
 *******************************************************************************/
@@ -219,10 +219,10 @@ char com_bitstream_readbit(com_bitstream_t* stream)
 /*******************************************************************************
  * com_bitstream_writechar
  * This function writes an entire char to the data stream
- * inputs: 
- *  stream: pointer to com_bitstream_t structure describing data stream 
+ * inputs:
+ *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
- * outputs: 
+ * outputs:
  *  none
  * Author: Miles Burchell
 *******************************************************************************/
@@ -248,10 +248,10 @@ void com_bitstream_writechar(com_bitstream_t* stream, char data)
 /*******************************************************************************
  * com_bitstream_readchar
  * This function reads an entire char from a data stream
- * inputs: 
- *  stream: pointer to com_bitstream_t structure describing data stream 
+ * inputs:
+ *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
- * outputs: 
+ * outputs:
  *  returns the value of the char read, or 0 if the function fails (read data
  *  can also be 0!)
  * Author: Miles Burchell
@@ -280,7 +280,7 @@ char com_bitstream_readchar(com_bitstream_t* stream)
  * com_bitstream_writecom
  * This function writes a series of bits representing a huffman coded character
  * to a data stream.
- * inputs: 
+ * inputs:
  *  stream: pointer to com_bitstream_t structure describing data stream
  *  (read/write)
  *  node: huffman node representing character to write
@@ -308,7 +308,7 @@ int com_bitstream_writehuff(com_bitstream_t* stream, com_huffnode_t* node)
 /*******************************************************************************
  * com_buildtree
  * This function builds the Huffman tree from predetermined static tables.
- * inputs: 
+ * inputs:
  *  tree_p_out: pointer to write heap pointer block to (write)
  * outputs:
  *  returns numbers of elements in the heap, or 0 if failed
@@ -316,22 +316,24 @@ int com_bitstream_writehuff(com_bitstream_t* stream, com_huffnode_t* node)
 *******************************************************************************/
 int com_buildtree(com_huffnode_t*** tree_p_out)
 {
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("DEBUG: com_buildtree: Computing static huffman tree....\n");
     char c;
-    #endif
+#endif
 
     /* Static frequency data for huffman tree generation. \? is used to represent
        the start of plain data (not coded.) */
 
-    const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
-    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
-    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
-    '\n', '\r', 'S', 'N', 'z' };
+    const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a',
+                                                   'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
+                                                   'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
+                                                   '\n', '\r', 'S', 'N', 'z'
+                                                 };
 
-    const int com_table_freqs[COM_TABLE_SIZE] = { 2000, 700, 600, 550, 500, 480, 
-    450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
-    81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31, 30};
+    const int com_table_freqs[COM_TABLE_SIZE] = { 2000, 700, 600, 550, 500, 480,
+                                                  450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
+                                                  81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31, 30
+                                                };
 
     char buffer[32];
 
@@ -391,10 +393,10 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             }
         }
 
-        if (lowest->frequency == 0x7fffffff || 
-            secondlowest->frequency == 0x7fffffff)
+        if (lowest->frequency == 0x7fffffff ||
+                secondlowest->frequency == 0x7fffffff)
         {
-            #ifdef DEBUG
+#ifdef DEBUG
             printf("Huffman tree finished, used %d nodes.\n", heapsize);
             int total = 0;
 
@@ -405,9 +407,9 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
 
             /* Check that the frequency of the top of the tree is equal to
                the sum of all frequencies (it should be!) */
-            printf("Total of all freqs is %d, freq of top node is %d.\n", 
-                total, heap[heapsize - 1]->frequency);
-            #endif
+            printf("Total of all freqs is %d, freq of top node is %d.\n",
+                   total, heap[heapsize - 1]->frequency);
+#endif
 
             break;
         }
@@ -416,7 +418,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
            imagine our tree starts as left highest freq, right lowest freq.
            so we should put the 2nd lowest on the left and lowest on the right
            link of the new node. */
-        
+
         if (heapsize == COM_HEAP_SIZE)
         {
             printf("Error: com_buildtree: Ran out of Huffman tree heap!!\n");
@@ -425,11 +427,11 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             return 0;
         }
 
-        #ifdef DEBUG
+#ifdef DEBUG
         printf("Lowest nodes are %c (%d f) and %c (%d f), linking them.\n",
-            secondlowest->character, secondlowest->frequency, 
-            lowest->character, lowest->frequency);
-        #endif
+               secondlowest->character, secondlowest->frequency,
+               lowest->character, lowest->frequency);
+#endif
 
         heap[heapsize] = (com_huffnode_t*)calloc(1, sizeof(com_huffnode_t));
         heap[heapsize]->character = '\0';
@@ -445,10 +447,10 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         heapsize++;
     }
 
-    #ifdef DEBUG
+#ifdef DEBUG
     /* printf out all huff codes */
     printf("DEBUG: Printing out all huffman codes:\n");
-    #endif
+#endif
 
     for (i = 0; i < COM_TABLE_SIZE; i++)
     {
@@ -457,10 +459,10 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         node = heap[i];
         bits = 0;
 
-        #ifdef DEBUG
+#ifdef DEBUG
         c = node->character;
-        #endif
-        
+#endif
+
         /* we're going in reverse */
         while(node->up)
         {
@@ -470,7 +472,7 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
         }
 
         node = heap[i];
-        
+
         com_strrev(buffer);
 
         /* set the bits in node struct */
@@ -493,20 +495,20 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             }
         }
 
-        #ifdef DEBUG
+#ifdef DEBUG
         printf("Character %c code %s\n", c, buffer);
-        #endif
+#endif
     }
 
-    #ifdef DEBUG
-    /* test to find which character 111011 is 
+#ifdef DEBUG
+    /* test to find which character 111011 is
        remember, 1 is right 0 is left */
     node = heap[heapsize - 1];
 
-    printf("Traversal test: 11010 is character %c\n", 
-        node->right->right->left->right->left->character);
+    printf("Traversal test: 11010 is character %c\n",
+           node->right->right->left->right->left->character);
     /*        1      1      0     1      0       */
-    #endif
+#endif
 
     /* attempt to resize heap pointer block to reduce memory usage */
     com_huffnode_t** reheap = 0;
@@ -516,12 +518,12 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
     {
         heap = reheap;
     }
-    #ifdef DEBUG
+#ifdef DEBUG
     else
     {
         printf("com_buildtree: couldn't realloc heap pointer block! :(\n");
     }
-    #endif
+#endif
 
     *tree_p_out = heap;
     return heapsize;
@@ -531,10 +533,10 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
  * com_freetree
  * This function frees all memory allocated to a huffman tree and its pointer
  * block.
- * inputs: 
+ * inputs:
  *  tree: tree pointer block
  *  treesize: number of elements in tree pointer block
- * outputs: 
+ * outputs:
  *  none
  * Author: Miles Burchell
 *******************************************************************************/
@@ -553,19 +555,20 @@ void com_freetree(com_huffnode_t** tree, int treesize)
 /*******************************************************************************
  * com_getnode
  * This function finds the Huffman node for a specific character
- * inputs: 
+ * inputs:
  *  character: character to get node for
  *  tree: the Huffman tree pointer block
- * outputs: 
+ * outputs:
  *  returns pointer to node, or 0 if node does not exist
  * Author: Miles Burchell
 *******************************************************************************/
 com_huffnode_t* com_getnode(char character, com_huffnode_t** tree)
 {
-    const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a', 
-    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
-    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
-    '\n', '\r', 'S', 'N', 'z' };
+    const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a',
+                                                   'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
+                                                   'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
+                                                   '\n', '\r', 'S', 'N', 'z'
+                                                 };
 
     int i;
 
@@ -583,9 +586,9 @@ com_huffnode_t* com_getnode(char character, com_huffnode_t** tree)
 /*******************************************************************************
  * com_decompressfile
  * This function decompresses a file loaded into memory.
- * inputs: 
+ * inputs:
  *  file: pointer to dat_file_t structure
- * outputs: 
+ * outputs:
  *  return 0 if successful, 1 if failed.
  * Author: Miles Burchell
 *******************************************************************************/
@@ -615,7 +618,7 @@ int com_decompressfile(dat_file_t* file)
     /* get a huffman tree */
     com_huffnode_t** tree = 0;
     int treesize = 0;
-    
+
     treesize = com_buildtree(&tree);
 
     if (!treesize)
@@ -764,9 +767,9 @@ int com_decompressfile(dat_file_t* file)
 /*******************************************************************************
  * com_compressfile
  * This function compresses a file loaded into memory.
- * inputs: 
+ * inputs:
  *  file: pointer to dat_file_t structure
- * outputs: 
+ * outputs:
  *  return 0 if successful, 1 if failed.
  * Author: Miles Burchell
 *******************************************************************************/
@@ -796,7 +799,7 @@ int com_compressfile(dat_file_t* file)
     /* get a huffman tree */
     com_huffnode_t** tree = 0;
     int treesize = 0;
-    
+
     treesize = com_buildtree(&tree);
 
     if (!treesize)
@@ -943,22 +946,22 @@ int com_compressfile(dat_file_t* file)
     /* Finish up the last byte if we haven't already */
     com_bitstream_skip(&bitwriter);
 
-    #ifdef DEBUG
+#ifdef DEBUG
     double comp_ratio = 0.0;
 
     /* Write compression ratio */
-    printf("\nOriginal: %d bytes. Compressed: %d bytes (padded to 8 bits).\n", 
-        file->length, bitwriter.byte);
-    
+    printf("\nOriginal: %d bytes. Compressed: %d bytes (padded to 8 bits).\n",
+           file->length, bitwriter.byte);
+
     comp_ratio = (double)file->length / (double)bitwriter.byte;
 
     printf("Compression ratio: %0.2lf:1\n", comp_ratio);
-    #endif
+#endif
 
     /* free original data buffer */
     free(file->data);
 
-    /* we need out file to be a multiple of 8 bytes long for our 64-bit 
+    /* we need out file to be a multiple of 8 bytes long for our 64-bit
        block encryption. So we round up to the nearest multiple of 8 and store
        the real length. */
     /* set new file length, and compressed attribute */

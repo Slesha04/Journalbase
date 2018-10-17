@@ -9,9 +9,6 @@
 #define MONTH_MAX 12
 #define YEAR_MIN 1
 #define YEAR_MAX 2100
-#define ENTER 10
-#define SPACE 32
-#define COMMA 44
 
 int dat_add(const char* filename, const char* storename);
 
@@ -26,8 +23,6 @@ int dat_searchall(int no_journals, dat_journal_t *head);
 int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals);
 
 int dat_delete_journal( dat_journal_t **head, int key, int no_journals);
-
-void dat_print_menu(void);
 
 void dat_print_delete_menu(void);
 

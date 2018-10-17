@@ -1,14 +1,14 @@
 /*******************************************************************************
- * encryption.c: Contains functions for encrypting and decrypting data via a 
+ * encryption.c: Contains functions for encrypting and decrypting data via a
  * modified XTEA algorithm.
- * 
+ *
  * Algorithm Modifications:
  *  - 64-bit Sum
  *  - 256-bit Key
  *  - 128 Rounds - Due to key size increase
  *  - Slightly modified bit shifts - For obscurity
  *  - Modulus operation replacing bitwise AND for key iteration
- * 
+ *
  * Authors: Miles Burchell
 *******************************************************************************/
 
@@ -18,9 +18,9 @@
 /*******************************************************************************
  * enc_encrypt
  * This function encrypts a 64-bit block of data
- * inputs: 
+ * inputs:
  *  data: pointer to data to encrypt (read/write)
- * outputs: 
+ * outputs:
  *  overwrites data
  * Author: Miles Burchell
 *******************************************************************************/
@@ -29,7 +29,8 @@ void enc_encrypt(enc_block_t* data)
     int i;
     enc_block_t sum = 0;
     __uint32_t key[8] = { ENC_KEY1, ENC_KEY2, ENC_KEY3, ENC_KEY4,
-                          ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8 };
+                          ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8
+                        };
     __uint32_t temp[2];
 
     /* split block into low and high 32-bit DWORDS */
@@ -39,16 +40,15 @@ void enc_encrypt(enc_block_t* data)
     /* perform encryption */
     for (i = 0; i < (ENC_NUM_ROUNDS / 2); i++)
     {
-        temp[0] += ((temp[1] << 5 ^ temp[1] >> 6) + temp[1]) ^ 
-            (sum + key[ sum % 8 ]);
+        temp[0] += ((temp[1] << 5 ^ temp[1] >> 6) + temp[1]) ^
+                   (sum + key[ sum % 8 ]);
 
         /* summation occuring between odd rounds helps protect from related-key
            attacks */
         sum += ENC_MAGIC;
 
-        temp[1] += ((temp[0] << 5 ^ temp[0] >> 6) + temp[0]) ^ 
-            (sum + key[ (sum >> 10) % 8 ]);
-
+        temp[1] += ((temp[0] << 5 ^ temp[0] >> 6) + temp[0]) ^
+                   (sum + key[ (sum >> 10) % 8 ]);
     }
 
     *data = (enc_block_t)temp[0] << 32 | temp[1];
@@ -57,9 +57,9 @@ void enc_encrypt(enc_block_t* data)
 /*******************************************************************************
  * enc_decrypt
  * This function decrypts a 64-bit block of data
- * inputs: 
+ * inputs:
  *  data: pointer to data to decrypt (read/write)
- * outputs: 
+ * outputs:
  *  overwrites data
  * Author: Miles Burchell
 *******************************************************************************/
@@ -68,7 +68,8 @@ void enc_decrypt(enc_block_t* data)
     int i;
     enc_block_t sum = ENC_MAGIC * (ENC_NUM_ROUNDS / 2);
     __uint32_t key[8] = { ENC_KEY1, ENC_KEY2, ENC_KEY3, ENC_KEY4,
-                          ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8 };
+                          ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8
+                        };
     __uint32_t temp[2];
 
     /* split block into low and high 32-bit DWORDS */
@@ -78,16 +79,15 @@ void enc_decrypt(enc_block_t* data)
     /* perform decryption */
     for (i = 0; i < (ENC_NUM_ROUNDS / 2); i++)
     {
-        temp[1] -= ((temp[0] << 5 ^ temp[0] >> 6) + temp[0]) ^ 
-            (sum + key[ (sum >> 10) % 8 ]);
-        
+        temp[1] -= ((temp[0] << 5 ^ temp[0] >> 6) + temp[0]) ^
+                   (sum + key[ (sum >> 10) % 8 ]);
+
         /* summation occuring between odd rounds helps protect from related-key
            attacks */
         sum -= ENC_MAGIC;
 
-        temp[0] -= ((temp[1] << 5 ^ temp[1] >> 6) + temp[1]) ^ 
-
-            (sum + key[ sum % 8 ]);
+        temp[0] -= ((temp[1] << 5 ^ temp[1] >> 6) + temp[1]) ^
+                   (sum + key[ sum % 8 ]);
     }
 
     *data = (enc_block_t)temp[0] << 32 | temp[1];
@@ -96,9 +96,9 @@ void enc_decrypt(enc_block_t* data)
 /*******************************************************************************
  * enc_decryptfile
  * This function decrypts a file loaded into memory
- * inputs: 
+ * inputs:
  * pointer to dat_file_t structure
- * outputs: 
+ * outputs:
  * return 0 if successful, 1 if failed.
  * Author: Miles Burchell
 *******************************************************************************/
@@ -125,10 +125,10 @@ int enc_decryptfile(dat_file_t* file)
         return 1;
     }
 
-    #ifdef DEBUG
-    printf("DEBUG: enc_decryptfile: Decrypting file length %u\n", 
-        file->length);
-    #endif
+#ifdef DEBUG
+    printf("DEBUG: enc_decryptfile: Decrypting file length %u\n",
+           file->length);
+#endif
 
     int block, num_blocks = file->length / BYTES_IN_BLOCK;
 
@@ -145,9 +145,9 @@ int enc_decryptfile(dat_file_t* file)
 /*******************************************************************************
  * enc_encryptfile
  * This function encrypts a file loaded into memory
- * inputs: 
+ * inputs:
  * pointer to dat_file_t structure
- * outputs: 
+ * outputs:
  * return 0 if successful, 1 if failed.
  * Author: Miles Burchell
 *******************************************************************************/
@@ -174,10 +174,10 @@ int enc_encryptfile(dat_file_t* file)
         return 1;
     }
 
-    #ifdef DEBUG
-    printf("DEBUG: enc_encryptfile: Encrypting file length %u\n", 
-        file->length);
-    #endif
+#ifdef DEBUG
+    printf("DEBUG: enc_encryptfile: Encrypting file length %u\n",
+           file->length);
+#endif
 
     int block, num_blocks = file->length / BYTES_IN_BLOCK;
 
