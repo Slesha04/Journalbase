@@ -1,6 +1,9 @@
 /*******************************************************************************
  * database.c: Contains functions for adding to, removing from, searching and
  * reading from the document database.
+ * 
+ * A linked list of journal structures with a dummy head is maintained and
+ * searched.
  *
  * Authors: Riza Tolentino, Miles Burchell
 *******************************************************************************/
