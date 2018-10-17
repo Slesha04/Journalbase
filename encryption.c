@@ -12,7 +12,8 @@
  * Authors: Miles Burchell
 *******************************************************************************/
 
-#include <stdio.h>
+#include <stdio.h> /* printf */
+
 #include "encryption.h"
 
 /*******************************************************************************
@@ -28,10 +29,10 @@ void enc_encrypt(enc_block_t* data)
 {
     int i;
     enc_block_t sum = 0;
-    __uint32_t key[8] = { ENC_KEY1, ENC_KEY2, ENC_KEY3, ENC_KEY4,
-                          ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8
-                        };
-    __uint32_t temp[2];
+    unsigned int key[8] = { ENC_KEY1, ENC_KEY2, ENC_KEY3, ENC_KEY4,
+                            ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8
+                          };
+    unsigned int temp[2];
 
     /* split block into low and high 32-bit DWORDS */
     temp[0] = (*data >> 32) & 0xFFFFFFFF;
@@ -67,10 +68,10 @@ void enc_decrypt(enc_block_t* data)
 {
     int i;
     enc_block_t sum = ENC_MAGIC * (ENC_NUM_ROUNDS / 2);
-    __uint32_t key[8] = { ENC_KEY1, ENC_KEY2, ENC_KEY3, ENC_KEY4,
-                          ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8
-                        };
-    __uint32_t temp[2];
+    unsigned int key[8] = { ENC_KEY1, ENC_KEY2, ENC_KEY3, ENC_KEY4,
+                            ENC_KEY5, ENC_KEY6, ENC_KEY7, ENC_KEY8
+                          };
+    unsigned int temp[2];
 
     /* split block into low and high 32-bit DWORDS */
     temp[0] = (*data >> 32) & 0xFFFFFFFF;

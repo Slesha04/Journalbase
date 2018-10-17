@@ -1,13 +1,18 @@
 /*******************************************************************************
  * database.c: Contains functions for adding to, removing from, searching and
  * reading from the document database.
+ * 
+ * A linked list of journal structures with a dummy head is maintained and
+ * searched.
  *
  * Authors: Riza Tolentino, Miles Burchell
 *******************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h> /* printf, sprintf, scanf, sscanf, fopen, ftell, close, 
+                      fread, fwrite, fclose, remove, getchar */
+#include <stdlib.h> /* malloc, calloc, free, atoi */
+#include <string.h> /* strcpy, strcat, strcmp, strlen */
+
 #include "database.h"
 #include "compression.h"
 #include "encryption.h"
@@ -319,7 +324,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         printf("Enter the Journal Title, no special characters>\n");
         scanf(" %[^\n]s", (*j).journaltitle);
 
-        if (dat_checkword((*j).journaltitle)==FALSE)
+        if (dat_check_word((*j).journaltitle)==FALSE)
         {
             printf("Invalid Title. Please try again.\n");
 #ifdef DEBUG
@@ -327,7 +332,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 #endif
         }
 
-    } while (dat_checkword((*j).journaltitle)==FALSE);
+    } while (dat_check_word((*j).journaltitle)==FALSE);
 
     getchar();
     do
@@ -402,7 +407,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     {
 
         (*j).dat_date_dt = dat_scan_date();
-        if(dat_checksearchdate((*j).dat_date_dt.date,(*j).dat_date_dt.month,
+        if(dat_check_search_date((*j).dat_date_dt.date,(*j).dat_date_dt.month,
                                (*j).dat_date_dt.year)==TRUE)
         {
             /* The user can move on if the date is correct.*/
@@ -767,7 +772,7 @@ int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
  * printed list of all journals. Will return 1 for a successful print.
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchall(int no_journals,  dat_journal_t *head)
+int dat_search_all(int no_journals,  dat_journal_t *head)
 {
     dat_journal_t * current = head->next;
 
@@ -799,7 +804,7 @@ int dat_searchall(int no_journals,  dat_journal_t *head)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchjournals(dat_journal_t *head, int no_journals)
+int dat_search_journals(dat_journal_t *head, int no_journals)
 {
     char choice_buffer[BUFFER_LENGTH+1];
     char searchtitle[MAX_TITLE_LENGTH+1];
@@ -819,7 +824,7 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
 
         while (1)
         {
-            dat_printsearchoptions();
+            dat_print_search_options();
 
             scanf("%s", choice_buffer);
             int search_choice = atoi(choice_buffer);
@@ -863,7 +868,7 @@ int dat_searchjournals(dat_journal_t *head, int no_journals)
             }
             if(search_choice == 5)
             {
-                search_success = dat_searchall(no_journals, head);
+                search_success = dat_search_all(no_journals, head);
                 return search_success;
             }
         }
@@ -902,7 +907,7 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 
         if(deletemenuchoice == 2)
         {
-            if(dat_searchjournals(head, no_journals))
+            if(dat_search_journals(head, no_journals))
             {
                 printf("Enter the reference number or enter 0 to cancel>\n");
                 scanf("%d", &delete_ref_key);
@@ -952,6 +957,7 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 {
     dat_journal_t* temp = *head, *prev;
+	char buffer[BUFFER_LENGTH + 1];
 
     if (temp && temp->referenceno == key)
     {
@@ -984,6 +990,10 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 
     free(temp);
 
+	/* remove stored file from disk */
+	sprintf(buffer, "%d.jb", key);
+	remove(buffer);
+
     printf("Journal %d was deleted from the database.\n", key);
 
     return no_journals - 1;
@@ -1005,7 +1015,7 @@ void dat_print_delete_menu(void)
 }
 
 /*******************************************************************************
- * dat_printsearchoptions
+ * dat_print_search_options
  * This function will print the search options
  * inputs:
  *  none
@@ -1013,7 +1023,7 @@ void dat_print_delete_menu(void)
  *  none
  * Author: Riza Tolentino
 *******************************************************************************/
-void dat_printsearchoptions(void)
+void dat_print_search_options(void)
 {
     printf("\n1. Search by Title\n");
     printf("2. Search by Author\n");
@@ -1023,7 +1033,7 @@ void dat_printsearchoptions(void)
 }
 
 /*******************************************************************************
- * dat_checksearchdate
+ * dat_check_search_date
  * This function will ensure the datatype inputted by its users is correct
  * and lies within the suitable bounds
  * inputs:
@@ -1032,7 +1042,7 @@ void dat_printsearchoptions(void)
  *  return TRUE if valid, FALSE if not
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_checksearchdate(int date, int month, int year)
+int dat_check_search_date(int date, int month, int year)
 {
     if (month < MONTH_MIN || month > MONTH_MAX ||
             date < DAY_MIN || date > DAY_MAX ||
@@ -1045,7 +1055,7 @@ int dat_checksearchdate(int date, int month, int year)
 }
 
 /*******************************************************************************
- * dat_checkword
+ * dat_check_word
  * This function will ensure the datatype inputted by its users is correct
  * inputs:
  *  searchword from the user - Author name / journal title or filename
@@ -1053,7 +1063,7 @@ int dat_checksearchdate(int date, int month, int year)
  *  return TRUE if valid input, FALSE if not
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_checkword(const char word[])
+int dat_check_word(const char word[])
 {   int length;
     int i;
     int invalid = 0;

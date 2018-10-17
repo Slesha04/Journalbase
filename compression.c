@@ -1,13 +1,25 @@
 /*******************************************************************************
  * compression.c: Contains functions to encrypt and decrypt ANSI/ASCII text data
  * using a combination of Huffman Coding and Run-Length Encoding.
+ * 
+ * 41 common characters are Huffman coded. Characters that are not coded are
+ * subject to run length encoding. This is to deal with long runs of otherwise
+ * uncommon characters seen in text-only articles eg. *************......
+ * 
+ * Non-coded data is signified by an escape character in Huffman code '\?'
+ * followed by an 8-bit signed integer, "nlen", describing the length of uncoded
+ * data, or run-length encoding.
+ * 
+ * A compression ratio of 1.56:1 is observed when using a 46kb sample scientific
+ * paper. Far higher ratios can be seen with ideal material, and vice versa.
  *
  * Authors: Miles Burchell
 *******************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h> /* printf */
+#include <stdlib.h> /* calloc, realloc, free */
+#include <string.h> /* memset, strcpy, strlen */
+
 #include "compression.h"
 
 /*******************************************************************************
@@ -325,15 +337,14 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
        the start of plain data (not coded.) */
 
     const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a',
-                                                   'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
-                                                   'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
-                                                   '\n', '\r', 'S', 'N', 'z'
-                                                 };
+    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
+    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
+    '\n', '\r', 'S', 'N', 'z' };
 
     const int com_table_freqs[COM_TABLE_SIZE] = { 2000, 700, 600, 550, 500, 480,
-                                                  450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
-                                                  81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31, 30
-                                                };
+    450, 440, 400, 380, 270, 260, 250, 200, 180, 150, 140, 100, 95, 90, 88, 87,
+    81, 78, 51, 48, 46, 45, 43, 42, 41, 40, 38, 37, 36, 35, 34, 33, 32, 31, 30
+    };
 
     char buffer[32];
 
@@ -565,10 +576,10 @@ void com_freetree(com_huffnode_t** tree, int treesize)
 com_huffnode_t* com_getnode(char character, com_huffnode_t** tree)
 {
     const char com_table_chars[COM_TABLE_SIZE] = { ' ', 'e', 't', 'o', 'i', 'a',
-                                                   'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
-                                                   'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
-                                                   '\n', '\r', 'S', 'N', 'z'
-                                                 };
+    'n', 's', '\?', 'r', 'h', 'l', 'c', 'd', 'u', 'p', 'f', 'm', 'g', ',', 'w',
+    'y', 'b', '.', '-', 'T', 'H', 'O', '1', 'V', 'I', 'C', ':', ';', 'P', 'A',
+    '\n', '\r', 'S', 'N', 'z'
+    };
 
     int i;
 

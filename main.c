@@ -8,8 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "compression.h"
-#include "encryption.h"
 #include "database.h"
 
 /*******************************************************************************
@@ -123,7 +121,7 @@ void show_read_menu()
         /*search through journals*/
         else if(dat_menu_selection == 1)
         {
-            dat_searchjournals(head, no_journals);
+            dat_search_journals(head, no_journals);
         }
         /*view journals to open*/
         else if (dat_menu_selection == 2)
@@ -257,7 +255,7 @@ void show_edit_menu()
         /*search through journals*/
         else if(dat_menu_selection == 3)
         {
-            dat_searchjournals(head, no_journals);
+            dat_search_journals(head, no_journals);
         }
         /*view journals to open*/
         else if (dat_menu_selection == 4)
