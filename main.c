@@ -21,7 +21,7 @@
 *******************************************************************************/
 void print_welcome(void)
 {
-    printf("Welcome to JournalBase, secure and efficient article storage.\n");
+    printf("\nWelcome to JournalBase, secure and efficient article storage.\n");
     printf("Please select an option from the menu by entering a number from ");
     printf("the options shown.\n\n");
 }
@@ -42,7 +42,7 @@ void print_edit_menu(void)
     printf("2. Delete journal from the database\n");
     printf("3. Search for a journal\n");
     printf("4. Open a journal\n");
-    printf("5. Exit\n");
+    printf("5. Exit\n\n");
 }
 
 /*******************************************************************************
@@ -59,7 +59,7 @@ void print_read_menu(void)
     printf("\nYou are in reading mode.\n\nPlease select an option:\n");
     printf("1. Search for a journal\n");
     printf("2. Open a journal\n");
-    printf("3. Exit\n");
+    printf("3. Exit\n\n");
 }
 
 /*******************************************************************************

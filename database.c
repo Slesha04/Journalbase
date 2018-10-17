@@ -296,7 +296,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     (*j).referenceno = *lastref;
 
-    printf("Enter the Journal information>\n");
+    printf("\nEnter the Journal information>\n");
 
     /*Prompt user to enter the file they would like to upload*/
     do {
@@ -322,7 +322,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     do
     {
-        printf("Enter the Journal Title, no special characters>\n");
+        printf("\nEnter the Journal Title, no special characters>\n");
         scanf(" %[^\n]s", (*j).journaltitle);
 
         if (dat_check_word((*j).journaltitle)==FALSE)
@@ -343,7 +343,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         i = 0;
         n = 0;
 
-        printf("Enter the Author's Name, if multiple authors, separate by");
+        printf("\nEnter the Author's Name, if multiple authors, separate by");
         printf(" a comma and space>\n");
 
         while(1)
@@ -435,7 +435,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         i = 0; /*keyword counter*/
         n = 0; /*Char counter for each word*/
 
-        printf("The maximum number of keywords is 5\n");
+        printf("\nThe maximum number of keywords is 5\n");
         printf("Enter keywords, separated by a space>\n");
 
         while(1)
@@ -499,7 +499,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     } while(valid!=TRUE);
 
     /*The user will see their username*/
-    printf("Your reference number is: %d\n", (*j).referenceno);
+    printf("\nYour reference number is: %d\n", (*j).referenceno);
 
 #ifdef DEBUG
     printf("DEBUG: dat_journalentry: journal added with fields:\n"
@@ -948,7 +948,8 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
         }
 
         printf("Journal %d will be deleted. ", delete_ref_key);
-        printf("Are you sure you would like to continue? [y/n]\n");
+        printf("Are you sure you would like to continue?\n"
+        	"Press Y to confirm or any key to cancel.\n");
         scanf(" %[^\n]s", buffer);
         if(strcmp(buffer, validation)==0)
         {
@@ -1273,7 +1274,7 @@ dat_date_t dat_scan_date(void)
     {
         valid = TRUE;
 
-        printf("Enter the publication date in the format DD/MM/YYYY>\n");
+        printf("\nEnter the publication date in the format DD/MM/YYYY>\n");
 
         m = 0;
 
