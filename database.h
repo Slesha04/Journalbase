@@ -16,11 +16,11 @@ int dat_open(const char* storename);
 
 dat_journal_t *dat_journalentry(int no_journals, int* lastref);
 
-int dat_search_journals(dat_journal_t *head, int no_journals);
+int dat_search_journals(const dat_journal_t *head, int no_journals);
 
-int dat_search_all(int no_journals, dat_journal_t *head);
+int dat_search_all(int no_journals, const dat_journal_t *head);
 
-int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals);
+int dat_delete_sort(int deletemenuchoice, const dat_journal_t *head, int no_journals);
 
 int dat_delete_journal( dat_journal_t **head, int key, int no_journals);
 
@@ -39,5 +39,6 @@ int dat_save_journal_data(dat_journal_t *head, int no_journals);
 int dat_load_journal_data(dat_journal_t* head, int* lastref);
 
 dat_date_t dat_scan_date(void);
+
 
 #endif

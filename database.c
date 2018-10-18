@@ -16,6 +16,7 @@
 #include "database.h"
 #include "compression.h"
 #include "encryption.h"
+#include "colours.h"
 
 /*******************************************************************************
  * dat_add
@@ -41,8 +42,10 @@ int dat_add(const char* filename, const char* storename)
     file_stream = fopen(filename, "r"); /*open file stream */
 
     if (!file_stream)
-    {
+    {   
+        red();
         printf("Error: dat_add: couldn't open file %s.\n", filename);
+        normal(); /*return colour*/
         return 1;
     }
 
@@ -59,7 +62,9 @@ int dat_add(const char* filename, const char* storename)
 
     if (!file.data)
     {
+        red();
         printf("Error: dat_add: out of memory.\n");
+        normal(); /*return colour*/
 
         fclose(file_stream);
 
@@ -74,8 +79,10 @@ int dat_add(const char* filename, const char* storename)
     fclose(file_stream);
 
     if (bytes_read < file.length)
-    {
+    {   
+        red();
         printf("Error: dat_add: error reading file %s.\n", filename);
+        normal();
 
         free(file.data);
 
@@ -93,7 +100,9 @@ int dat_add(const char* filename, const char* storename)
 
     if (!file_stream)
     {
+        red();
         printf("Error: dat_add: couldn't open file %s.\n", storename);
+        normal(); /*return colour*/
 
         fclose(file_stream);
 
@@ -113,7 +122,9 @@ int dat_add(const char* filename, const char* storename)
 
     if (bytes_read < file.length)
     {
+        red();
         printf("Error: dat_add: error writing file %s.\n", filename);
+        normal(); /*return colour*/
 
         return 1;
     }
@@ -146,8 +157,10 @@ int dat_open(const char* storename)
     file_stream = fopen(storename, "r"); /*open file stream */
 
     if (!file_stream)
-    {
+    {   
+        red();
         printf("Error: dat_open: couldn't open file %s.\n", storename);
+        normal(); /*return colour*/
         return 1;
     }
 
@@ -164,8 +177,10 @@ int dat_open(const char* storename)
     file.data = calloc(sizeof(char), file.length + 1);
 
     if (!file.data)
-    {
+    {   
+        red();
         printf("Error: dat_open: out of memory.\n");
+        normal(); /*return colour*/
 
         fclose(file_stream);
 
@@ -185,7 +200,9 @@ int dat_open(const char* storename)
 
     if (bytes_read < file.length)
     {
+        red();
         printf("Error: dat_open: error reading file %s.\n", storename);
+        normal(); /*return colour*/
 
         free(file.data);
 
@@ -203,7 +220,9 @@ int dat_open(const char* storename)
 
     if (!file_stream)
     {
+        red();
         printf("Error: dat_open: couldn't open temp file.\n");
+        normal(); /*return colour*/
 
         fclose(file_stream);
 
@@ -273,13 +292,16 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     dat_journal_t *j = NULL;
     j = malloc(sizeof(dat_journal_t));
 
-    int valid = TRUE;
+    int valid = TRUE; /*Indication of valid input*/
     int i = 0, n=0, m=0; /*counters/flags*/
-    char keyword_buffer, temp2, temp, author_buffer;
+    char  temp, author_buffer; /*buffer for author*/
+    char keyword_buffer, temp2; /*buffer for keyword*/
 
     if (!j)
-    {
-        printf("ERROR: dat_journalentry: Out of memory.\n");
+    {   
+        red();
+        printf("Error: dat_journalentry: Out of memory.\n");
+        normal(); /*return colour*/
 
         return NULL;
     }
@@ -288,6 +310,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     {
         (*lastref)++;
     }
+    
     else
     {
         /*first reference*/
@@ -296,6 +319,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     (*j).referenceno = *lastref;
 
+    /*Start inputting journal information*/
     printf("\nEnter the Journal information>\n");
 
     /*Prompt user to enter the file they would like to upload*/
@@ -303,6 +327,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         printf("Enter the File Name>\n");
         scanf(" %[^\n]s", (*j).filename);
 
+        /*This will be the compressed and encrypted file*/
         sprintf((*j).stored_filename, "%d.jb", (*j).referenceno);
 
 #ifdef DEBUG
@@ -311,11 +336,12 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
         if(dat_add((*j).filename, (*j).stored_filename))
         {
+            /*Unsuccessful*/
             valid = FALSE;
         }
-
         else
         {
+            /*Successful*/
             valid = TRUE;
         }
     } while (valid==FALSE);
@@ -326,17 +352,20 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         scanf(" %[^\n]s", (*j).journaltitle);
 
         if (dat_check_word((*j).journaltitle)==FALSE)
-        {
-            printf("Invalid Title. Please try again.\n");
+        {   red();
+            printf("Error: Invalid Title. Please try again.\n");
+            normal(); /*return colour*/
 #ifdef DEBUG
-            printf("Error: The title must only have alphabet characters.");
-
+            printf("DEBUG:Error: The title must only"
+                    "have alphabet characters.");
 #endif
         }
 
-    } while (dat_check_word((*j).journaltitle)==FALSE);
+    } while (dat_check_word((*j).journaltitle)==FALSE); /*Ensures 
+                                                no special chars.*/
 
     getchar();
+
     do
     {
     	(*j).numberofauthors = 0;
@@ -345,6 +374,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
         printf("\nEnter the Author's Name, if multiple authors, separate by");
         printf(" a comma and space>\n");
+        printf("If the author is unknown, enter *\n");
 
         while(1)
         {
@@ -353,7 +383,25 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             n++;
 
             if(author_buffer== '\n')
-            {
+            { 
+                /*If the author is unknown, no.authors == 0 and
+                the loop breaks*/
+                if(temp == '*' && (*j).numberofauthors==0)
+                {   
+                    i = -1;
+                    strcpy((*j).authoralias, "Unknown Author");
+                    break;
+                }
+
+                /*must enter at least 1 author or "*" */
+                /*32 is space in ascii*/
+                else if((*j).numberofauthors==0 && ((n==1)||temp == 32))
+                {   
+                    red();
+                    printf("Error: Enter 1 author, if unknown enter '*'\n");
+                    normal(); /*return colour*/
+                    valid = FALSE;
+                }
                 /*reset counters at entry of a new line*/
                 (*j).authorname[i][n-1] = 0;
 
@@ -375,6 +423,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
                 i ++; /*next author begins*/
             }
 
+
             temp = author_buffer;
 
         }
@@ -384,22 +433,23 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 #ifdef DEBUG
         printf("Number of authors is: %d\n", (*j).numberofauthors);
 #endif
-
-        /*if there is more than 1 author, the first author, et al.
-        	will be displayed */
-        strcpy((*j).authoralias, (*j).authorname[0]);
-
+        if((*j).numberofauthors>=1)
+        {
+            strcpy((*j).authoralias, (*j).authorname[0]);
+        }
         if((*j).numberofauthors>1)
         {
-
-
+            /*if there is more than 1 author, the first author, et al.
+            will be displayed*/
             strcat((*j).authoralias, " et al.");
         }
 
         if((*j).numberofauthors > MAX_NUMBER_AUTHORS)
         {
             valid = FALSE;
-            printf("You have entered too many authors\n");
+            red();
+            printf("Error: You have entered too many authors\n");
+            normal();
         }
 
     } while (valid!=TRUE);
@@ -416,10 +466,12 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             break;
         }
         else
-        {
-            printf("Invalid date.\n");
+        {   
+            red();
+            printf("Error: Invalid date.\n");
+            normal();
 #ifdef DEBUG
-            printf("ERROR: The date does not"
+            printf("Error: The date does not"
                    " lie within the correct bounds\n");
 #endif
         }
@@ -493,23 +545,27 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         if((*j).numberofkeywords > MAX_NUMBER_KEYWORDS)
         {
             valid = FALSE;
+            red();
             printf("You have entered too many keywords.\n");
+            normal(); /*return colour*/
         }
 
     } while(valid!=TRUE);
 
     /*The user will see their username*/
+    blue();
     printf("\nYour reference number is: %d\n", (*j).referenceno);
+    normal();
 
 #ifdef DEBUG
-    printf("DEBUG: dat_journalentry: journal added with fields:\n"
+    printf("\nDEBUG: dat_journalentry: journal added with fields:\n"
            " Title: %s\n Author(s): %s\n Publication_date: %d/%d/%d\n"
            " Keywords: %s\n Reference Number: %d\n",
            (*j).journaltitle, (*j).authoralias, (*j).dat_date_dt.date,
            (*j).dat_date_dt.month, (*j).dat_date_dt.year, keyword_list,
            (*j).referenceno);
 #endif
-
+    
     return j;
 
 }
@@ -524,7 +580,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchtitle(char search_term[], const dat_journal_t *head)
+int dat_searchtitle(const char search_term[], const dat_journal_t *head)
 {
     int i = 0;
     dat_journal_t * current = head->next;
@@ -548,7 +604,7 @@ int dat_searchtitle(char search_term[], const dat_journal_t *head)
 
     if(i>0)
     {
-        printf("Ref. no. Title           Author          Date Published\n");
+        printf("\nRef. no. Title           Author          Date Published\n");
         printf("-------- --------------- --------------- --------------\n");
     }
 
@@ -582,7 +638,7 @@ int dat_searchtitle(char search_term[], const dat_journal_t *head)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchauthor(char search_term[], dat_journal_t *head)
+int dat_searchauthor(const char search_term[], const dat_journal_t *head)
 {
     int i = 0;
     int m = 0; /*node counter*/
@@ -616,7 +672,7 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
 
     if(i>0)
     {
-        printf("Ref. no. Title           Author          Date Published\n");
+        printf("\nRef. no. Title           Author          Date Published\n");
         printf("-------- --------------- --------------- --------------\n");
     }
 
@@ -656,7 +712,7 @@ int dat_searchauthor(char search_term[], dat_journal_t *head)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchtags(const char searchkeyword[], dat_journal_t *head)
+int dat_searchtags(const char searchkeyword[], const dat_journal_t *head)
 {
     int i = 0;
     int m = 0; /*node counter*/
@@ -731,7 +787,7 @@ int dat_searchtags(const char searchkeyword[], dat_journal_t *head)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
+int dat_searchdate(dat_date_t search_date_term, const dat_journal_t *head)
 {
     int i;
     dat_journal_t * current = head->next;
@@ -793,7 +849,7 @@ int dat_searchdate(dat_date_t search_date_term, dat_journal_t *head)
  * printed list of all journals. Will return 1 for a successful print.
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_search_all(int no_journals,  dat_journal_t *head)
+int dat_search_all(int no_journals,  const dat_journal_t *head)
 {
     dat_journal_t * current = head->next;
 
@@ -826,7 +882,7 @@ int dat_search_all(int no_journals,  dat_journal_t *head)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_search_journals(dat_journal_t *head, int no_journals)
+int dat_search_journals(const dat_journal_t *head, int no_journals)
 {
     char choice_buffer[BUFFER_LENGTH+1];
     char searchtitle[MAX_TITLE_LENGTH+1];
@@ -861,7 +917,7 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
             /*Search by Title*/
             if(search_choice == 1)
             {
-                printf("Enter the Title you are searching for>\n");
+                printf("\nEnter the Title you are searching for>\n");
 
                 scanf(" %[^\n]s", searchtitle);
                 search_success = dat_searchtitle(searchtitle, head);
@@ -871,7 +927,7 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
             /*Search by Author*/
             if(search_choice == 2)
             {
-                printf("Enter an Author>\n");
+                printf("\nEnter an Author>\n");
                 scanf(" %[^\n]s", searchauthor);
                 search_success = dat_searchauthor(searchauthor, head);
                 return search_success;
@@ -888,7 +944,7 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
              /*Search by Keyword*/
             if(search_choice == 4)
             {
-                printf("Enter a Keyword>\n");
+                printf("\nEnter a Keyword>\n");
                 scanf(" %[^\n]s", searchkeyword);
                 search_success = dat_searchtags(searchkeyword, head);
                 return search_success;
@@ -916,7 +972,7 @@ int dat_search_journals(dat_journal_t *head, int no_journals)
  * returned, no journal is to be deleted
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
+int dat_delete_sort(int deletemenuchoice, const dat_journal_t *head, int no_journals)
 {
 
     int delete_ref_key = 0;
@@ -985,16 +1041,19 @@ int dat_delete_sort(int deletemenuchoice, dat_journal_t *head, int no_journals)
 *******************************************************************************/
 int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 {
+    /*the head node*/
     dat_journal_t* temp = *head, *prev;
 	char buffer[BUFFER_LENGTH + 1];
 
+    /*If the node matches the head*/
     if (temp && temp->referenceno == key)
     {
-        *head = temp->next;
-        free(temp);
-        return no_journals - 1;
+        *head = temp->next; /*move head*/
+        free(temp); /*delete matching node*/
+        return no_journals - 1; /*one less journal*/
     }
 
+    /*cycles through list until key is reached*/
     while (temp && temp->referenceno != key)
     {
         prev = temp;
@@ -1003,7 +1062,9 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 
     if (!temp)
     {
-        printf("ERROR: dat_delete_journal: Couldn't remove journal.\n");
+        red();
+        printf("Error: dat_delete_journal: Couldn't remove journal.\n");
+        normal();
         return no_journals;
     }
 
@@ -1040,7 +1101,7 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 void dat_print_delete_menu(void)
 {
     printf("\n1. Enter the reference number of the journal to be deleted\n");
-    printf("2. Search through the journals \n");
+    printf("2. Search through the journals \n\n");
 }
 
 /*******************************************************************************
@@ -1058,7 +1119,7 @@ void dat_print_search_options(void)
     printf("2. Search by Author\n");
     printf("3. Search by Publication Date\n");
     printf("4. Search by Keywords\n");
-    printf("5. Show entire database\n");
+    printf("5. Show entire database\n\n");
 }
 
 /*******************************************************************************
@@ -1139,8 +1200,10 @@ int dat_check_menu_input(int menuinput, int lowerbound, int higherbound)
 {
     if(menuinput < lowerbound || menuinput > higherbound)
     {
+        red();
         printf("Invalid selection. Please enter a number between");
         printf(" %d and %d.\n", lowerbound, higherbound);
+        normal();
         return FALSE;
     }
 
@@ -1171,8 +1234,9 @@ int dat_save_journal_data(dat_journal_t* head, int no_journals)
 
     if (!fp)
     {
+        red();
         printf("Error: dat_save_journal_data: Couldn't open file.\n");
-
+        normal();
         return 1;
     }
 
@@ -1325,8 +1389,10 @@ dat_date_t dat_scan_date(void)
 
         /*error was detected while scanning*/
         if(valid == FALSE)
-        {
+        {   
+            red();
             printf("Invalid input\n");
+            normal();
         }
     } while(valid==FALSE); /*repeat until a valid date*/
 

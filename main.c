@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "database.h"
+#include "colours.h"
 
 /*******************************************************************************
  * print_welcome
@@ -20,10 +21,13 @@
  * Author: Miles Burchell
 *******************************************************************************/
 void print_welcome(void)
-{
+{   
+
+    magenta();
     printf("\nWelcome to JournalBase, secure and efficient article storage.\n");
     printf("Please select an option from the menu by entering a number from ");
     printf("the options shown.\n\n");
+    normal();
 }
 
 /*******************************************************************************
@@ -37,12 +41,14 @@ void print_welcome(void)
 *******************************************************************************/
 void print_edit_menu(void)
 {
+    grey();
     printf("\nYou are in editing mode. Please select an option:\n\n");
     printf("1. Add journal to the database\n");
     printf("2. Delete journal from the database\n");
     printf("3. Search for a journal\n");
     printf("4. Open a journal\n");
     printf("5. Exit\n\n");
+    normal();
 }
 
 /*******************************************************************************
@@ -81,8 +87,10 @@ void show_read_menu()
     head = malloc(sizeof(dat_journal_t));
 
     if(head == NULL)
-    {
+    {   
+        red();
         printf("ERROR: Out of memory.\n");
+        normal();
     }
 
     no_journals = dat_load_journal_data(head, &current_refid);
@@ -98,7 +106,9 @@ void show_read_menu()
     {
         if (!current->next)
         {
+            red();
             printf("Error: Null pointer in loaded journal list. ");
+            normal();
             printf("Database.jb is likely corrupted on disk.\n");
             return;
         }
@@ -166,7 +176,9 @@ void show_edit_menu()
 
     if(head == NULL)
     {
+        red();
         printf("ERROR: Out of memory.\n");
+        normal();
     }
 
     no_journals = dat_load_journal_data(head, &current_refid);
@@ -182,7 +194,9 @@ void show_edit_menu()
     {
         if (!current->next)
         {
+            red();
             printf("Error: Null pointer in loaded journal list.");
+            normal(); /*colour returns to normal*/
             printf("Database.jb is likely corrupted on disk.\n");
             return;
         }
@@ -292,6 +306,7 @@ int main (int argc, char *argv[])
     {
         for (i = 1; i < argc; i++)
         {
+            /*second runtime mode*/
             if (strstr(argv[i], "-edit"))
             {
                 show_edit_menu();
