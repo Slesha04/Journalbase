@@ -58,10 +58,11 @@ typedef struct dat_date
    we will need to be much smarter with our memory usage. writing all 256 
    bytes of buffer will seriously bloat our disk usage */
 
-/* all files, once ingested by the program, are assigned a randomly generated
-   8-character filename. */
+/* all files, once ingested by the program, are aassigned names based on
+    their reference ID */
 
 /* defines a journal saved in the program's database */
+
 typedef struct dat_journal
 {
     struct dat_journal *prev;

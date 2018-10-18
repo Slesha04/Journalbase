@@ -15,8 +15,7 @@ void magenta(void);
 
 void normal(void);
 
-void grey();
+void grey(void);
 
-void bkd_w();
 
 #endif
