@@ -64,7 +64,7 @@ int dat_add(const char* filename, const char* storename)
     {
         red();
         printf("Error: dat_add: out of memory.\n");
-        normal(); /*return colour*/
+        normal(); /* return colour */
 
         fclose(file_stream);
 
@@ -261,12 +261,12 @@ int dat_open(const char* storename)
         printf("article will be opened in this terminal window. Type ':qa!'");
         printf(" when you are ready to exit the article viewer.\n\n");
         printf("Press enter to continue...\n");
+        normal();
 
         getchar();
         getchar();
 
         system("vim temp.txt");
-        normal();
     }
 
     return 0;
@@ -349,7 +349,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             valid = TRUE;
         }
 
-    } while (valid==FALSE);/*until a valid input occurs*/
+    } while (valid==FALSE);/* until a valid input occurs */
 
     do
     {
@@ -366,9 +366,8 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
                     "have alphabet characters.");
 #endif
         }
-
-    } while (dat_check_word((*j).journaltitle)==FALSE); /*Ensures 
-                                                no special chars.*/
+    /* no special chars */
+    } while (dat_check_word((*j).journaltitle)==FALSE);
 
     getchar();/*accepts \n from scanf*/
 
@@ -1182,14 +1181,14 @@ int dat_check_word(const char word[])
 
     for(i=0; i<length; i++)
     {
-    	/*ASCII chars*/
-        if(((word[i]<65 && word[i] != 32) || ((word[i]>90) && (word[i]<97)) 
-        	|| word[i]>122))
+    	/* ASCII chars */
+        if(((word[i] < 'A' && word[i] != ' ') || ((word[i] > 'Z') && 
+            (word[i] < 'a'))  || word[i] > 'z'))
         {
-            invalid ++;
+            invalid = TRUE;
         }
 
-        if(invalid>0)
+        if(invalid)
         {
             return FALSE;
 
@@ -1238,9 +1237,7 @@ int dat_check_menu_input(int menuinput, int lowerbound, int higherbound)
 int dat_save_journal_data(dat_journal_t* head, int no_journals)
 {
 #ifdef DEBUG
-
     printf("DEBUG: Saving database to disk\n");
-
 #endif
 
     FILE* fp;
@@ -1371,7 +1368,7 @@ dat_date_t dat_scan_date(void)
             i=m-1;
 
             /* Numeric input for date */
-            if (i == 0 || i == 1 || i == 3 || i == 4 || (i >= 6 && i<= 9))
+            if (((i == 0 || i == 1 || i == 3 || i == 4)) || (i >= 6 && i<= 9))
             {
                 /*checks if numeral*/
                 if (date_buffer < '0' || date_buffer > '9')
@@ -1390,7 +1387,7 @@ dat_date_t dat_scan_date(void)
                     valid = FALSE;
                 }
 
-                whole_date[i] = 32;
+                whole_date[i] = ' ';
             }
             /*Check length of date input*/
             if(i > 9)

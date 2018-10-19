@@ -86,7 +86,7 @@ void show_read_menu()
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
 
-    if(head == NULL)
+    if (head == NULL)
     {   
         red();
         printf("ERROR: Out of memory.\n");
@@ -288,7 +288,7 @@ void show_edit_menu()
             dat_open(buffer);
             remove("temp.txt");
         }
-        /*End program*/
+        /* End program */
         else if(dat_menu_selection == 5)
         {
             break;

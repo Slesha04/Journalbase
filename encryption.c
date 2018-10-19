@@ -41,6 +41,9 @@ void enc_encrypt(enc_block_t* data)
     /* perform encryption */
     for (i = 0; i < (ENC_NUM_ROUNDS / 2); i++)
     {
+        /* increase by the other dword, bit shifted in opposite directions and
+           XORed together, plus that dword, XORed with magic sum + a 32 bit
+           segment of the key */
         temp[0] += ((temp[1] << 5 ^ temp[1] >> 6) + temp[1]) ^
                    (sum + key[ sum % 8 ]);
 
@@ -133,6 +136,7 @@ int enc_decryptfile(dat_file_t* file)
 
     int block, num_blocks = file->length / BYTES_IN_BLOCK;
 
+    /* split data in 64-bit blocks and decrypt block by block */
     for (block = 0; block < num_blocks; block++)
     {
         enc_decrypt(&(((enc_block_t*)file->data)[block]));
@@ -182,6 +186,7 @@ int enc_encryptfile(dat_file_t* file)
 
     int block, num_blocks = file->length / BYTES_IN_BLOCK;
 
+    /* split data in 64-bit blocks and encrypt block by block */
     for (block = 0; block < num_blocks; block++)
     {
         enc_encrypt(&(((enc_block_t*)file->data)[block]));

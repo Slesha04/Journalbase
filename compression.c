@@ -40,7 +40,7 @@ void com_strrev(char *str)
     if (!rev)
     {
         red();
-        printf("Error: com_strrev calloc failed.\n");
+        printf("Error: com_strrev: out of memory.\n");
         normal();
     }
 
@@ -49,6 +49,7 @@ void com_strrev(char *str)
         rev[i] = str[len - i - 1];
     }
 
+    /* copy reversed string over original */
     strcpy(str, rev);
 
     free(rev);
@@ -395,7 +396,6 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             if (heap[i]->frequency < secondlowest->frequency)
             {
                 /* lower than our 2nd lowest */
-
                 if (heap[i]->frequency < lowest->frequency)
                 {
                     /* lower than our lowest: new lowest */
@@ -565,11 +565,13 @@ void com_freetree(com_huffnode_t** tree, int treesize)
 {
     int i;
 
+    /* free all nodes */
     for (i = 0; i < treesize; i++)
     {
         free(tree[i]);
     }
 
+    /* free pointer block */
     free(tree);
 }
 
