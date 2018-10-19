@@ -21,6 +21,7 @@
 #include <string.h> /* memset, strcpy, strlen */
 
 #include "compression.h"
+#include "colours.h"
 
 /*******************************************************************************
  * com_strrev
@@ -38,7 +39,9 @@ void com_strrev(char *str)
 
     if (!rev)
     {
+        red();
         printf("Error: com_strrev calloc failed.\n");
+        normal();
     }
 
     for (i = 0; i < len; i++)
@@ -247,7 +250,9 @@ void com_bitstream_writechar(com_bitstream_t* stream, char data)
 
     if (stream->bit)
     {
+        red();
         printf("Error: com_bitstream_writechar: Not a whole byte.\n");
+        normal();
         return;
     }
 
@@ -277,7 +282,9 @@ char com_bitstream_readchar(com_bitstream_t* stream)
 
     if (stream->bit)
     {
+        red();
         printf("Error: com_bitstream_readchar: Not a whole byte.\n");
+        normal();
         return 0;
     }
 
@@ -432,8 +439,9 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
 
         if (heapsize == COM_HEAP_SIZE)
         {
+            red();
             printf("Error: com_buildtree: Ran out of Huffman tree heap!!\n");
-
+            normal();
             *tree_p_out = 0;
             return 0;
         }
@@ -501,7 +509,9 @@ int com_buildtree(com_huffnode_t*** tree_p_out)
             }
             else
             {
+                red();
                 printf("ERROR: com_buildtree: invalid binary character\n");
+                normal();
                 node->enc_bits[j] = 0;
             }
         }
@@ -607,22 +617,25 @@ int com_decompressfile(dat_file_t* file)
 {
     if (!file)
     {
+        red();
         printf("Error: com_decompressfile: Null pointer.\n");
-
+        normal();
         return 1;
     }
 
     if (!file->compressed)
     {
+        red();
         printf("Error: com_decompressfile: Non-compressed file.\n");
-
+        normal();
         return 1;
     }
 
     if (file->encrypted)
     {
+        red();
         printf("Error: com_decompressfile: Encrypted file.\n");
-
+        normal();
         return 1;
     }
 
@@ -658,7 +671,9 @@ int com_decompressfile(dat_file_t* file)
     /* Sanity check */
     if (!topnode || !topnode->left || !topnode->right)
     {
+        red();
         printf("Error: com_decompressfile: Invalid top node.\n");
+        normal();
         return 1;
     }
 
@@ -682,8 +697,11 @@ int com_decompressfile(dat_file_t* file)
 
         if (!node)
         {
+            red();
             printf("Error: com_decompressfile: Null node pointer.\n");
+            normal();
             printf("%s\n", buffer);
+
             return 1;
         }
 
@@ -788,22 +806,27 @@ int com_compressfile(dat_file_t* file)
 {
     if (!file)
     {
+        red();
         printf("Error: com_compressfile: Null pointer.\n");
-
+        normal();
         return 1;
     }
 
     if (file->compressed)
     {
+        red();
         printf("Error: com_compressfile: Compressed file.\n");
+        normal();
 
         return 1;
     }
 
     if (file->encrypted)
     {
+        red();
         printf("Error: com_compressfile: Encrypted file.\n");
-
+        normal();
+        
         return 1;
     }
 

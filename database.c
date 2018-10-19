@@ -255,7 +255,8 @@ int dat_open(const char* storename)
 
     /* otherwise use vim */
     if (retn_val != 0)
-    {
+    {   
+        red();
         printf("\n\nSince GVim is not available in your envrionment, the ");
         printf("article will be opened in this terminal window. Type ':qa!'");
         printf(" when you are ready to exit the article viewer.\n\n");
@@ -265,6 +266,7 @@ int dat_open(const char* storename)
         getchar();
 
         system("vim temp.txt");
+        normal();
     }
 
     return 0;
@@ -320,11 +322,13 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     (*j).referenceno = *lastref;
 
     /*********Start inputting journal information*******************************/
-    printf("\nEnter the Journal information>\n");
-
+    blue();
+    printf("\nJournal Information:\n");
+    normal();
+    
     /*Prompt user to enter the file they would like to upload*/
     do {
-        printf("Enter the File Name>\n");
+        printf("Choose a plain text to upload\nEnter the File Name>\n");
         scanf(" %[^\n]s", (*j).filename);
 
         /*This will be the compressed and encrypted file*/
@@ -488,7 +492,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
         printf("\nThe maximum number of keywords is 5"
             ", press enter for none.\n");
-        printf("Enter keywords, separated by a space>\n");
+        printf("Enter keywords, separated by a comma and a space>\n");
 
         while(1)
         {
@@ -1009,9 +1013,12 @@ int dat_delete_sort(int deletemenuchoice, const dat_journal_t *head,
             }
         }
 
-        printf("Journal %d will be deleted. ", delete_ref_key);
+        red();
+        printf("\nJournal %d will be deleted. ", delete_ref_key);
         printf("Are you sure you would like to continue?\n"
         	"Press Y to confirm or any key to cancel.\n");
+        normal();
+
         scanf(" %[^\n]s", buffer);
         if(strcmp(buffer, validation)==0)
         {
@@ -1106,6 +1113,7 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 *******************************************************************************/
 void dat_print_delete_menu(void)
 {
+    printf("Select an option:\n");
     printf("\n1. Enter the reference number of the journal to be deleted\n");
     printf("2. Search through the journals \n\n");
 }
@@ -1130,10 +1138,9 @@ void dat_print_search_options(void)
 
 /*******************************************************************************
  * dat_check_search_date
- * This function will ensure the datatype inputted by its users is correct
- * and lies within the suitable bounds
+ * This function will ensure the date inputted within the suitable bounds
  * inputs:
- *  date, month, year
+ *  dat_date_t struct: date, month, year
  * outputs:
  *  return TRUE if valid, FALSE if not
  * Author: Riza Tolentino
@@ -1164,7 +1171,7 @@ int dat_check_search_date(const dat_date_t pub_date)
 *******************************************************************************/
 int dat_check_word(const char word[])
 {   int length;
-    int i;
+    int i; /*flag for incorrect inputs*/
     int invalid = 0;
     length = strlen(word);
 
