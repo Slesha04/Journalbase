@@ -884,6 +884,13 @@ int com_compressfile(dat_file_t* file)
                     }
 
                     nlen++;
+
+                    /* max */
+                    if (nlen > 126)
+                    {
+                        nlen = 0;
+                        break;
+                    }
                 }
 
                 /* -nlen means run length encoding */
