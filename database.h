@@ -10,8 +10,6 @@
 #define YEAR_MIN 1
 #define YEAR_MAX 2100
 
-void dat_print_intro(void);
-
 int dat_add(const char* filename, const char* storename);
 
 int dat_open(const char* storename);

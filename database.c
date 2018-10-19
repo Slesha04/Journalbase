@@ -325,7 +325,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     blue();
     printf("\nJournal Information:\n");
     normal();
-    dat_print_intro();
+    
     /*Prompt user to enter the file they would like to upload*/
     do {
         printf("Choose a plain text to upload\nEnter the File Name>\n");
@@ -1134,22 +1134,6 @@ void dat_print_search_options(void)
     printf("3. Search by Publication Date\n");
     printf("4. Search by Keywords\n");
     printf("5. Show entire database\n\n");
-}
-
-/*******************************************************************************
- * dat_print_intro
- * This function will print the instructions
- * inputs:
- *  none
- * outputs:
- *  none
- * Author: Riza Tolentino
-*******************************************************************************/
-void dat_print_intro(void)
-{
-    blue();
-    printf("\nThe program allows you to store and access journal articles.\n"); 
-    normal();
 }
 
 /*******************************************************************************
