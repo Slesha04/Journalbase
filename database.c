@@ -279,7 +279,7 @@ int dat_open(const char* storename)
  *  no_journals: number of journals
  *  lastref: last assigned journal reference number (read/write)
  * outputs:
- *  returns pointer to the newly create journal entry (dat_journal_t), or NULL
+ *  returns pointer to the newly created journal entry (dat_journal_t), or NULL
  *  if failed.
  * Author: Riza Tolentino
 *******************************************************************************/
@@ -293,13 +293,13 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     j = malloc(sizeof(dat_journal_t));
 
     int valid = TRUE; /*Indication of valid input*/
-    int i = 0, n=0, m=0; /*counters/flags*/
+    int i = 0, n=0, m=0; /*counters for chars & strings/flags*/
     char  temp, author_buffer; /*buffer for author*/
     char keyword_buffer, temp2; /*buffer for keyword*/
 
     if (!j)
     {   
-        red();
+        red();/*Change text colour*/
         printf("Error: dat_journalentry: Out of memory.\n");
         normal(); /*return colour*/
 
@@ -319,7 +319,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     (*j).referenceno = *lastref;
 
-    /*Start inputting journal information*/
+    /*********Start inputting journal information*******************************/
     printf("\nEnter the Journal information>\n");
 
     /*Prompt user to enter the file they would like to upload*/
@@ -344,7 +344,8 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             /*Successful*/
             valid = TRUE;
         }
-    } while (valid==FALSE);
+
+    } while (valid==FALSE);/*until a valid input occurs*/
 
     do
     {
@@ -352,7 +353,8 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         scanf(" %[^\n]s", (*j).journaltitle);
 
         if (dat_check_word((*j).journaltitle)==FALSE)
-        {   red();
+        {   
+            red();
             printf("Error: Invalid Title. Please try again.\n");
             normal(); /*return colour*/
 #ifdef DEBUG
@@ -364,7 +366,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     } while (dat_check_word((*j).journaltitle)==FALSE); /*Ensures 
                                                 no special chars.*/
 
-    getchar();
+    getchar();/*accepts \n from scanf*/
 
     do
     {
@@ -372,8 +374,8 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         i = 0;
         n = 0;
 
-        printf("\nEnter the Author's Name, if multiple authors, separate by");
-        printf(" a comma and space>\n");
+        printf("\nEnter the Author's Name, if multiple authors,"
+        " separate by a comma and space>\n");
         printf("If the author is unknown, enter *\n");
 
         while(1)
@@ -459,17 +461,14 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
     {
 
         (*j).dat_date_dt = dat_scan_date();
-        if(dat_check_search_date((*j).dat_date_dt.date,(*j).dat_date_dt.month,
-                               (*j).dat_date_dt.year)==TRUE)
+        if(dat_check_search_date((*j).dat_date_dt)==TRUE)
         {
             /* The user can move on if the date is correct.*/
             break;
         }
         else
         {   
-            red();
-            printf("Error: Invalid date.\n");
-            normal();
+
 #ifdef DEBUG
             printf("Error: The date does not"
                    " lie within the correct bounds\n");
@@ -487,7 +486,8 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
         i = 0; /*keyword counter*/
         n = 0; /*Char counter for each word*/
 
-        printf("\nThe maximum number of keywords is 5\n");
+        printf("\nThe maximum number of keywords is 5"
+            ", press enter for none.\n");
         printf("Enter keywords, separated by a space>\n");
 
         while(1)
@@ -517,7 +517,6 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
             }
 
-
             if(keyword_buffer != ' ' && keyword_buffer != ',')
             {
                 (*j).journalkeywords[i][n-1] = keyword_buffer;
@@ -527,12 +526,12 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
             {
             	/*null terminate*/
                 (*j).journalkeywords[i][n-1] = 0; 
-                n = 0;
-                i++;
+                n = 0; /*back to first letter*/
+                i++; /*next word*/
             }
 
 
-            temp2 = keyword_buffer;
+            temp2 = keyword_buffer; /*allows for checking previous char*/
 
         }
 
@@ -552,7 +551,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     } while(valid!=TRUE);
 
-    /*The user will see their username*/
+    /*The user will see their reference number in blue*/
     blue();
     printf("\nYour reference number is: %d\n", (*j).referenceno);
     normal();
@@ -582,9 +581,9 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 *******************************************************************************/
 int dat_searchtitle(const char search_term[], const dat_journal_t *head)
 {
-    int i = 0;
-    dat_journal_t * current = head->next;
-    dat_journal_t * current_printer = head->next;
+    int i = 0; /*flag for found search term*/
+    dat_journal_t * current = head->next; /*starting point*/
+    dat_journal_t * current_printer = head->next; /*starting point*/
 
     while(current!=NULL)
     {
@@ -650,7 +649,7 @@ int dat_searchauthor(const char search_term[], const dat_journal_t *head)
         for(m=0; m < current->numberofauthors; m++)
         {
 #ifdef DEBUG
-            printf("The search term is: %s and the author is: %s\n"
+            printf("DEBUG: The search term is: %s and the author is: %s\n"
                    , search_term, current->authorname[m]);
 #endif
 
@@ -724,7 +723,7 @@ int dat_searchtags(const char searchkeyword[], const dat_journal_t *head)
         for(m=0; m < current->numberofkeywords; m++)
         {
 #ifdef DEBUG
-            printf("The search term is: %s and the keywords are: %s\n"
+            printf("DEBUG: The search term is: %s and the keywords are: %s\n"
                    , searchkeyword, current->journalkeywords[m]);
 #endif
 
@@ -787,7 +786,7 @@ int dat_searchtags(const char searchkeyword[], const dat_journal_t *head)
  * FALSE if no match was found
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_searchdate(dat_date_t search_date_term, const dat_journal_t *head)
+int dat_searchdate(const dat_date_t search_date_term, const dat_journal_t *head)
 {
     int i;
     dat_journal_t * current = head->next;
@@ -936,7 +935,13 @@ int dat_search_journals(const dat_journal_t *head, int no_journals)
             if(search_choice == 3)
             {
             	getchar();
-                searchdate = dat_scan_date();
+                do
+                {
+                    searchdate = dat_scan_date();
+
+                }while(dat_check_search_date(searchdate)==FALSE); 
+                                            
+
                 search_success = dat_searchdate(searchdate, head);
                 return search_success;
 
@@ -972,7 +977,8 @@ int dat_search_journals(const dat_journal_t *head, int no_journals)
  * returned, no journal is to be deleted
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_delete_sort(int deletemenuchoice, const dat_journal_t *head, int no_journals)
+int dat_delete_sort(int deletemenuchoice, const dat_journal_t *head, 
+                                                            int no_journals)
 {
 
     int delete_ref_key = 0;
@@ -1132,12 +1138,15 @@ void dat_print_search_options(void)
  *  return TRUE if valid, FALSE if not
  * Author: Riza Tolentino
 *******************************************************************************/
-int dat_check_search_date(int date, int month, int year)
+int dat_check_search_date(const dat_date_t pub_date)
 {
-    if (month < MONTH_MIN || month > MONTH_MAX ||
-            date < DAY_MIN || date > DAY_MAX ||
-            year < YEAR_MIN || year > YEAR_MAX)
+    if(pub_date.month < MONTH_MIN || pub_date.month > MONTH_MAX ||
+            pub_date.date < DAY_MIN || pub_date.date > DAY_MAX ||
+            pub_date.year < YEAR_MIN || pub_date.year > YEAR_MAX)
     {
+        red();
+        printf("Invalid date\n");
+        normal();
         return FALSE;
     }
 

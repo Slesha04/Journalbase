@@ -20,6 +20,8 @@ int dat_search_journals(const dat_journal_t *head, int no_journals);
 
 int dat_search_all(int no_journals, const dat_journal_t *head);
 
+int dat_searchdate(const dat_date_t search_date_term, const dat_journal_t *head);
+
 int dat_delete_sort(int deletemenuchoice, const dat_journal_t *head, int no_journals);
 
 int dat_delete_journal( dat_journal_t **head, int key, int no_journals);
@@ -28,7 +30,7 @@ void dat_print_delete_menu(void);
 
 void dat_print_search_options(void);
 
-int dat_check_search_date(int date, int month, int year);
+int dat_check_search_date(const dat_date_t);
 
 int dat_check_word(const char word[]);
 
