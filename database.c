@@ -323,12 +323,14 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     /*********Start inputting journal information*******************************/
     blue();
-    printf("\nJournal Information:\n");
+    printf("\nAdding an Article\n\n");
     normal();
     
     /*Prompt user to enter the file they would like to upload*/
     do {
-        printf("Choose a plain text to upload\nEnter the File Name>\n");
+        printf("JournalBase will now import an article. Please supply the ");
+        printf("article as a plain text file.\n");
+        printf("Enter the File Name>\n");
         scanf(" %[^\n]s", (*j).filename);
 
         /*This will be the compressed and encrypted file*/
@@ -353,7 +355,7 @@ dat_journal_t *dat_journalentry(int no_journals, int* lastref)
 
     do
     {
-        printf("\nEnter the Journal Title, no special characters>\n");
+        printf("\nEnter the article title, no special characters>\n");
         scanf(" %[^\n]s", (*j).journaltitle);
 
         if (dat_check_word((*j).journaltitle)==FALSE)
@@ -895,7 +897,7 @@ int dat_search_journals(const dat_journal_t *head, int no_journals)
 
     if (no_journals == 0)
     {
-        printf("There are no journals to search through.\n");
+        printf("There are no stored articles.\n");
 
         return 0;
     }
@@ -1013,9 +1015,9 @@ int dat_delete_sort(int deletemenuchoice, const dat_journal_t *head,
         }
 
         red();
-        printf("\nJournal %d will be deleted. ", delete_ref_key);
+        printf("\nArticle %d will be deleted. ", delete_ref_key);
         printf("Are you sure you would like to continue?\n"
-        	"Press Y to confirm or any key to cancel.\n");
+        	"Enter Y to confirm or N to cancel.\n");
         normal();
 
         scanf(" %[^\n]s", buffer);
@@ -1075,7 +1077,7 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
     if (!temp)
     {
         red();
-        printf("Error: dat_delete_journal: Couldn't remove journal.\n");
+        printf("Error: dat_delete_journal: Couldn't remove article.\n");
         normal();
         return no_journals;
     }
@@ -1096,7 +1098,7 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 	sprintf(buffer, "%d.jb", key);
 	remove(buffer);
 
-    printf("Journal %d was deleted from the database.\n", key);
+    printf("Article %d was deleted from the database.\n", key);
 
     return no_journals - 1;
 }
@@ -1113,8 +1115,8 @@ int dat_delete_journal (dat_journal_t **head, int key, int no_journals)
 void dat_print_delete_menu(void)
 {
     printf("Select an option:\n");
-    printf("\n1. Enter the reference number of the journal to be deleted\n");
-    printf("2. Search through the journals \n\n");
+    printf("\n1. Enter the reference number of the article to be deleted\n");
+    printf("2. Search articles \n\n");
 }
 
 /*******************************************************************************

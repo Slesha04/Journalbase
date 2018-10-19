@@ -41,14 +41,12 @@ void print_welcome(void)
 *******************************************************************************/
 void print_edit_menu(void)
 {
-    grey();
     printf("\nYou are in editing mode. Please select an option:\n\n");
-    printf("1. Add journal to the database\n");
-    printf("2. Delete journal from the database\n");
-    printf("3. Search for a journal\n");
-    printf("4. Open a journal\n");
+    printf("1. Add article to the database\n");
+    printf("2. Delete article from the database\n");
+    printf("3. Search for an article\n");
+    printf("4. Open an article\n");
     printf("5. Exit\n\n");
-    normal();
 }
 
 /*******************************************************************************
@@ -63,8 +61,8 @@ void print_edit_menu(void)
 void print_read_menu(void)
 {
     printf("\nYou are in reading mode.\n\nPlease select an option:\n");
-    printf("1. Search for a journal\n");
-    printf("2. Open a journal\n");
+    printf("1. Search for an article\n");
+    printf("2. Open an article\n");
     printf("3. Exit\n\n");
 }
 
@@ -81,7 +79,7 @@ void print_read_menu(void)
 void show_read_menu()
 {
     char buffer[BUFFER_LENGTH+1];
-    int no_journals, current_refid, i;
+    int no_journals, current_refid = 0, i;
 
     dat_journal_t *head = NULL;
     head = malloc(sizeof(dat_journal_t));
@@ -107,7 +105,7 @@ void show_read_menu()
         if (!current->next)
         {
             red();
-            printf("Error: Null pointer in loaded journal list. ");
+            printf("Error: Null pointer in loaded article list. ");
             normal();
             printf("Database.jb is likely corrupted on disk.\n");
             return;
@@ -138,7 +136,7 @@ void show_read_menu()
         {
             int ref_id;
 
-            printf("Enter journal reference no.> ");
+            printf("Enter article reference no.> ");
             scanf("%d", &ref_id);
 
             sprintf(buffer, "%d.jb", ref_id);
@@ -168,7 +166,7 @@ void show_read_menu()
 void show_edit_menu()
 {
     char buffer[BUFFER_LENGTH+1];
-    int no_journals, current_refid, i;
+    int no_journals, current_refid = 0, i;
 
     dat_journal_t *j;
     dat_journal_t *head = NULL;
@@ -195,7 +193,7 @@ void show_edit_menu()
         if (!current->next)
         {
             red();
-            printf("Error: Null pointer in loaded journal list.");
+            printf("Error: Null pointer in loaded article list.");
             normal(); /*colour returns to normal*/
             printf("Database.jb is likely corrupted on disk.\n");
             return;
@@ -243,7 +241,7 @@ void show_edit_menu()
         {
             if(no_journals==0)
             {
-                printf("There are no journals.\n");
+                printf("There are no stored articles.\n");
             }
             else
             {
@@ -280,7 +278,7 @@ void show_edit_menu()
         {
             int ref_id;
 
-            printf("Enter journal reference no.> ");
+            printf("Enter article reference no.> ");
             scanf("%d", &ref_id);
 
             sprintf(buffer, "%d.jb", ref_id);

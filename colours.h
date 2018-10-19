@@ -17,5 +17,4 @@ void normal(void);
 
 void grey(void);
 
-
 #endif
